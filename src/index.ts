@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+const fido2lib = require('fido2-lib')
 
 /**
  * 
@@ -7,7 +8,25 @@ import { NextFunction, Request, Response } from "express";
  * @param {Function} next - Express next middleware function
  * @returns {undefined} 
  */
-function attestationOptions(req: Request, res: Response, next: NextFunction) {
+async function attestationOptions(req: Request, res: Response, next: NextFunction) {
+  if (!req.body || !req.body.username || !req.body.displayName) {
+    return res.json({
+      'status': 'failed',
+      'errorMessage': 'Request missing display name or username field!'
+    })
+  }
+
+  const serve = new fido2lib.Fido2Lib();
+  const options = await serve.attestationOptions();
+  options.status = 'ok';
+  options.errorMessage = '';
+  options.user.name = req.body.username;
+  options.user.displayName = req.body.displayName;
+  if (req.session) {
+    req.session.challenge = options.challenge;
+  }
+
+  res.json(options);
   next();
 }
 
