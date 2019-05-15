@@ -16,14 +16,21 @@ async function attestationOptions(req: Request, res: Response, next: NextFunctio
     })
   }
 
+  // TODO
+  let excludeCredentials;
+
   const serve = new fido2lib.Fido2Lib();
   const options = await serve.attestationOptions();
   options.status = 'ok';
   options.errorMessage = '';
+  options.extensions = req.body.extensions;
+  options.authenticatorSelection = req.body.authenticatorSelection;
+  options.excludeCredentials = excludeCredentials;
   options.user.name = req.body.username;
   options.user.displayName = req.body.displayName;
   if (req.session) {
     req.session.challenge = options.challenge;
+    req.session.username = req.body.username;
   }
 
   res.json(options);
