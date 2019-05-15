@@ -2,14 +2,14 @@
   "name": "fido2-middleware",
   "version": "0.0.1",
   "description": "Parse FIDO2 request",
-  "main": "lib/index.js",
-  "types": "lib/index",
+  "main": "index.js",
+  "types": "index",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "build": "tsc",
-    "test": "istanbul cover _mocha -- ./lib/test/*.test.js"
+    "test": "istanbul cover _mocha -- ./test/*.test.js"
   },
   "repository": {
     "type": "git",

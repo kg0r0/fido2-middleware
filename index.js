@@ -45,7 +45,7 @@ var fido2lib = require('fido2-lib');
  */
 function attestationOptions(req, res, next) {
     return __awaiter(this, void 0, void 0, function () {
-        var serve, options;
+        var excludeCredentials, serve, options;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -61,10 +61,14 @@ function attestationOptions(req, res, next) {
                     options = _a.sent();
                     options.status = 'ok';
                     options.errorMessage = '';
+                    options.extensions = req.body.extensions;
+                    options.authenticatorSelection = req.body.authenticatorSelection;
+                    options.excludeCredentials = excludeCredentials;
                     options.user.name = req.body.username;
                     options.user.displayName = req.body.displayName;
                     if (req.session) {
                         req.session.challenge = options.challenge;
+                        req.session.username = req.body.username;
                     }
                     res.json(options);
                     next();

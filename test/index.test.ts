@@ -1,7 +1,7 @@
 import { NextFunction } from "connect";
 import { describe, it } from 'mocha';
 
-const index = require('../src/index');
+const index = require('../index');
 const request = require('supertest');
 const express = require('express');
 const bodyParser = require('body-parser');

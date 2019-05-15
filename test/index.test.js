@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var mocha_1 = require("mocha");
-var index = require('../src/index');
+var index = require('../index');
 var request = require('supertest');
 var express = require('express');
 var bodyParser = require('body-parser');
