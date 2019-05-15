@@ -43,9 +43,6 @@
     "express": "^4.16.4"
   },
   "nyc": {
-    "include": [
-      "src/*.ts"
-    ],
     "extension": [
       ".ts"
     ],
@@ -57,7 +54,6 @@
       "html",
       "text"
     ],
-    "sourceMap":true,
-    "all": true
+    "sourceMap":true
   }
 }
