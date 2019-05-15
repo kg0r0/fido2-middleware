@@ -44,8 +44,7 @@
   },
   "nyc": {
     "include": [
-      "lib/*.ts",
-      "lib/**/*.ts"
+      "src/*.ts"
     ],
     "extension": [
       ".ts"
