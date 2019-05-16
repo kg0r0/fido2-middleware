@@ -26,7 +26,7 @@ app.use(cookieSession({
   keys: [crypto.randomBytes(32).toString('hex')],
   maxAge: 24 * 60 * 60 * 1000
 }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
