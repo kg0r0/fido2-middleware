@@ -1,7 +1,5 @@
 'use strict';
 
-import { verify } from "crypto";
-
 function getMakeCredentialsChallenge(formBody) {
     return fetch('/attestation/options', {
         method: 'POST',
