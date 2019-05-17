@@ -68,6 +68,7 @@ $('#register').submit(function(event) {
 
     getMakeCredentialsChallenge({username, displayName})
         .then((response) => {
+            console.log(response)
             var publicKey = preformatMakeCredReq(response);
             return navigator.credentials.create({ publicKey })
         })

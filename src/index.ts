@@ -1,5 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-const fido2lib = require('fido2-lib')
+const fido2lib = require('fido2-lib');
+const crypto = require('crypto');
+const base64url = require('base64url');
+
+function randomBase64URLBuffer(len: number) {
+  len = len || 32;
+  const buff = crypto.randomBytes(len);
+  return base64url(buff);
+}
 
 /**
  * 
@@ -27,14 +35,15 @@ async function attestationOptions(req: Request, res: Response, next: NextFunctio
   options.authenticatorSelection = req.body.authenticatorSelection;
   options.excludeCredentials = excludeCredentials;
   options.user.name = req.body.username;
+  options.user.id = randomBase64URLBuffer(32);
+  options.challenge = randomBase64URLBuffer(32);
   options.user.displayName = req.body.displayName;
   if (req.session) {
     req.session.challenge = options.challenge;
     req.session.username = req.body.username;
   }
 
-  res.json(options);
-  next();
+  return res.json(options);
 }
 
 /**

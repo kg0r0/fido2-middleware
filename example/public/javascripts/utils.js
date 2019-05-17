@@ -47,6 +47,7 @@ function generateRandomBuffer(len) {
  * Decodes arrayBuffer required fields.
  */
 function preformatMakeCredReq(makeCredReq) {
+    console.log(makeCredReq)
     makeCredReq.challenge = base64url.decode(makeCredReq.challenge);
     makeCredReq.user.id = base64url.decode(makeCredReq.user.id);
 
