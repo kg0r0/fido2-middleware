@@ -52,16 +52,16 @@ async function attestationOptions(req: Request, res: Response) {
     if (database[req.body.username] && database[req.body.username].registered) {
       excludeCredentials = [
         {
-          "type": "public-key",
-          "id": database[req.body.username].authenticatorp[0].credID
+          type: "public-key",
+          id: database[req.body.username].authenticatorp[0].credID
         }
       ];
     } else {
       database[req.body.username] = {
-        "name": req.body.displayName,
-        "registerd": false,
-        "id": randomBase64URLBuffer(32),
-        "authenticators": []
+        name: req.body.displayName,
+        registerd: false,
+        id: randomBase64URLBuffer(32),
+        authenticators: []
       };
     }
   }
@@ -69,8 +69,8 @@ async function attestationOptions(req: Request, res: Response) {
   const fido2Lib = new fido2lib.Fido2Lib(fido2MiddlewareConfig.fido2lib);
   const options = await fido2Lib.attestationOptions().catch((err: Error) => {
     return res.json({
-      "status": "failed",
-      "errorMessage": err.message
+      status: "failed",
+      errorMessage: err.message
     });
   });
   options.status = "ok";
@@ -110,22 +110,23 @@ async function attestationResult(
     !req.body.type
   ) {
     return res.json({
-      "status": "failed",
-      "errorMessage": "Response missing one or more of id/rawId/response/type fields"
+      status: "failed",
+      errorMessage:
+        "Response missing one or more of id/rawId/response/type fields"
     });
   }
 
   if (req.body.type !== "public-key") {
     return res.json({
-      "status": "failed",
-      "errorMessage": "type is not public-key!"
+      status: "failed",
+      errorMessage: "type is not public-key!"
     });
   }
 
   if (!isBase64UrlEncoded(req.body.id)) {
     return res.json({
-      "status": "failed",
-      "errorMessage": "Invalid id!"
+      status: "failed",
+      errorMessage: "Invalid id!"
     });
   }
 
@@ -133,6 +134,12 @@ async function attestationResult(
   const expected = {};
   const result = await fido2Lib.attestationResult(res, expected);
 
+  if (!result) {
+    return res.json({
+      status: "failed",
+      errorMessage: "Invalid id!"
+    });
+  }
   next();
 }
 
