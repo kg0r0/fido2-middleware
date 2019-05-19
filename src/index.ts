@@ -17,11 +17,7 @@ function randomBase64URLBuffer(len: number) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-async function attestationOptions(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+async function attestationOptions(req: Request, res: Response) {
   if (!req.body || !req.body.username || !req.body.displayName) {
     return res.json({
       status: "failed",

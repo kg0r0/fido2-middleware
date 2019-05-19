@@ -1,4 +1,3 @@
-import { NextFunction } from "connect";
 import { describe, it } from "mocha";
 
 const index = require("../src/index");
