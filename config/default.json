@@ -4,6 +4,7 @@
             "timeout": 60000,
             "rpId": "localhost",
             "challengeSize": 32
-        }
+        },
+        "origin": "http://localhost:3000"
     }
 }
