@@ -131,7 +131,16 @@ async function attestationResult(
   }
 
   const fido2Lib = new fido2lib.Fido2Lib();
-  const expected = {};
+  let expected = {
+    challenge: String,
+    origin: String,
+    factor: String
+  };
+  if (req.session) {
+    expected.challenge = req.session.challenge;
+  }
+  expected.origin = fido2MiddlewareConfig.origin || "localhost";
+  expected.factor = fido2MiddlewareConfig.factor || "either";
   const result = await fido2Lib.attestationResult(res, expected);
 
   if (!result) {
