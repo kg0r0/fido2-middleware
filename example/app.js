@@ -32,6 +32,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/attestation/options', index.attestationOptions);
+app.use('/attestation/result', index.attestationResult);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

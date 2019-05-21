@@ -123,12 +123,6 @@ async function attestationResult(
     });
   }
 
-  if (!isBase64UrlEncoded(req.body.id)) {
-    return res.json({
-      status: "failed",
-      errorMessage: "Invalid id!"
-    });
-  }
 
   const fido2Lib = new fido2lib.Fido2Lib();
   let expected = {
@@ -141,15 +135,23 @@ async function attestationResult(
   }
   expected.origin = fido2MiddlewareConfig.origin || "localhost";
   expected.factor = fido2MiddlewareConfig.factor || "either";
-  const result = await fido2Lib.attestationResult(res, expected);
+  const result = await fido2Lib.attestationResult(res, expected).catch((err: Error) => {
+    return res.json({
+      status: "failed",
+      errorMessage: err.message
+    });
+  });
 
   if (!result) {
     return res.json({
       status: "failed",
-      errorMessage: "Invalid id!"
+      errorMessage: "Can not authenticate signature!"
     });
   }
-  next();
+  return res.json({
+    status: "ok",
+    errorMessage: ""
+  })
 }
 
 /**
