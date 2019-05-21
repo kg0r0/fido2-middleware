@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const base64url = require("base64url");
 const config = require("config");
 const database = require("./db");
+const str2ab = require("string-to-arraybuffer");
 const fido2MiddlewareConfig = config.get("fido2-middlewareConfig");
 
 /**
@@ -17,19 +18,19 @@ function randomBase64URLBuffer(len: number) {
   return base64url(buff);
 }
 
+function preformatResultReq(resultReq: Request) {
+  resultReq.body.rawId = str2ab(resultReq.body.rawId);
+  resultReq.body.id = str2ab(resultReq.body.id);
+  return resultReq;
+}
+
 /**
  * Takes string and tries to verify base64 url encoded.
- * @param  {String} b64UrlString
+ * @param  {String} str
  * @return {Boolean}
  */
-function isBase64UrlEncoded(b64UrlString: string) {
-  if (b64UrlString.indexOf("+") !== -1) {
-    return false;
-  } else if (b64UrlString.indexOf("/") !== -1) {
-    return false;
-  } else if (b64UrlString.indexOf("=") !== -1) {
-    return false;
-  }
+function isBase64UrlEncoded(str: String) {
+  return !!str.match(/^[A-Za-z0-9\-_]+={0,2}$/);
 }
 
 /**
@@ -97,11 +98,7 @@ async function attestationOptions(req: Request, res: Response) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-async function attestationResult(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+async function attestationResult(req: Request, res: Response) {
   if (
     !req.body ||
     !req.body.id ||
@@ -123,6 +120,12 @@ async function attestationResult(
     });
   }
 
+  if (!isBase64UrlEncoded(req.body.id)) {
+    return res.json({
+      status: "failed",
+      errorMessage: "Invalid id!"
+    });
+  }
 
   const fido2Lib = new fido2lib.Fido2Lib();
   let expected = {
@@ -135,12 +138,15 @@ async function attestationResult(
   }
   expected.origin = fido2MiddlewareConfig.origin || "localhost";
   expected.factor = fido2MiddlewareConfig.factor || "either";
-  const result = await fido2Lib.attestationResult(res, expected).catch((err: Error) => {
-    return res.json({
-      status: "failed",
-      errorMessage: err.message
+  const requestBody = preformatResultReq(req).body;
+  const result = await fido2Lib
+    .attestationResult(requestBody, expected)
+    .catch((err: Error) => {
+      return res.json({
+        status: "failed",
+        errorMessage: err.message
+      });
     });
-  });
 
   if (!result) {
     return res.json({
@@ -151,7 +157,7 @@ async function attestationResult(
   return res.json({
     status: "ok",
     errorMessage: ""
-  })
+  });
 }
 
 /**
