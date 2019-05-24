@@ -7,6 +7,13 @@ const database = require("./db");
 const str2ab = require("string-to-arraybuffer");
 const fido2MiddlewareConfig = config.get("fido2-middlewareConfig");
 
+interface AuthrInfo {
+  fmt: string;
+  publicKey: string;
+  counter: number;
+  credID: string;
+}
+
 /**
  *
  * @param len
@@ -154,6 +161,18 @@ async function attestationResult(req: Request, res: Response) {
       errorMessage: "Can not authenticate signature!"
     });
   }
+  const authrInfo: AuthrInfo = {
+    fmt: result.authnrData.get("fmt"),
+    publicKey: result.authnrData.get("credentialPublicKeyPem"),
+    counter: result.authnrData.get("counter"),
+    credID: result.authnrData.get("credId")
+  };
+
+  if (req.session) {
+    database[req.session.username].authenticators.push(authrInfo);
+    database[req.session.username].registerd = true;
+  }
+
   return res.json({
     status: "ok",
     errorMessage: ""
