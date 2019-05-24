@@ -5,4 +5,8 @@
 TBD
 
 ## Example
-TBD
+```
+$ cd example
+$ npm install
+$ npm start
+```
