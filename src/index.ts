@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 const fido2lib = require("fido2-lib");
 const crypto = require("crypto");
 const base64url = require("base64url");
+<<<<<<< HEAD
 const config = require("config");
 const database = require("./db");
 const str2ab = require("string-to-arraybuffer");
@@ -35,6 +36,18 @@ function isBase64UrlEncoded(str: String) {
 
 /**
  *
+=======
+
+function randomBase64URLBuffer(len: number) {
+  len = len || 32;
+  const buff = crypto.randomBytes(len);
+
+  return base64url(buff);
+}
+
+/**
+ *
+>>>>>>> af3087a25954ceb3e2866bfb4e133c154eddf58d
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
@@ -48,6 +61,7 @@ async function attestationOptions(req: Request, res: Response) {
     });
   }
 
+<<<<<<< HEAD
   let excludeCredentials;
   if (!fido2MiddlewareConfig.db) {
     if (database[req.body.username] && database[req.body.username].registered) {
@@ -74,6 +88,14 @@ async function attestationOptions(req: Request, res: Response) {
       errorMessage: err.message
     });
   });
+=======
+  // TODO
+  let excludeCredentials;
+
+  const serve = new fido2lib.Fido2Lib();
+  const options = await serve.attestationOptions();
+
+>>>>>>> af3087a25954ceb3e2866bfb4e133c154eddf58d
   options.status = "ok";
   options.errorMessage = "";
   options.extensions = req.body.extensions;

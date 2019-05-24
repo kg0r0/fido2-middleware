@@ -55,13 +55,20 @@
   "dependencies": {
     "@types/express-session": "^1.15.12",
     "base64url": "^3.0.1",
+<<<<<<< HEAD
     "config": "^3.1.0",
+=======
+>>>>>>> af3087a25954ceb3e2866bfb4e133c154eddf58d
     "cookie-parser": "^1.4.4",
     "cookie-session": "^1.3.3",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
+<<<<<<< HEAD
     "fido2-lib": "^2.1.1",
     "string-to-arraybuffer": "^1.0.2"
+=======
+    "fido2-lib": "^2.1.1"
+>>>>>>> af3087a25954ceb3e2866bfb4e133c154eddf58d
   },
   "nyc": {
     "extension": [
