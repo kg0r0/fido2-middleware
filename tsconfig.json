@@ -60,11 +60,7 @@
     "resolveJsonModule": true /* Include modules imported with '.json' extension */
   },
   "exclude": [
-    "node_modules"
-  ],
-  "files": [
-    "src/index.ts",
-    "test/index.test.ts"
+    "node_modules",
+    "lib"
   ]
-
 }
