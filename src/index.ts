@@ -39,10 +39,10 @@ interface AuthrInfo {
 
 function isRequestBody(bodyObject: any): boolean {
   return (
-    typeof bodyObject.id === "number" &&
-    typeof bodyObject.rawId === "string" &&
+    bodyObject.id != null &&
+    bodyObject.rawId != null &&
     bodyObject.response != null &&
-    bodyObject.type == null
+    bodyObject.type != null
   );
 }
 
@@ -118,7 +118,7 @@ async function attestationOptions(req: Request, res: Response) {
  * @returns {undefined}
  */
 async function attestationResult(req: Request, res: Response) {
-  if (!(req.body == null && isRequestBody(req.body))) {
+  if (!(req.body != null && isRequestBody(req.body))) {
     return res.json({
       status: "failed",
       errorMessage:
