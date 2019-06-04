@@ -1,3 +1,5 @@
-let database = {};
+interface Database {
+  username: string;
+}
 
-module.exports = database;
+export const database: any = {};
