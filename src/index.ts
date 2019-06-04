@@ -4,7 +4,6 @@ import config from "config";
 import { database } from "./db";
 const fido2lib = require("fido2-lib");
 const str2ab = require("string-to-arraybuffer");
-
 const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
   "fido2-middlewareConfig"
 );
@@ -29,6 +28,13 @@ interface RequestBody {
 interface ResponseBody {
   status: string;
   errorMessage: string | null;
+}
+
+interface AuthrInfo {
+  fmt: string;
+  publicKey: string;
+  counter: number;
+  credID: string;
 }
 
 function isRequestBody(bodyObject: any): boolean {
@@ -161,6 +167,18 @@ async function attestationResult(req: Request, res: Response) {
       errorMessage: "Can not authenticate signature!"
     });
   }
+  const authrInfo: AuthrInfo = {
+    fmt: result.authnrData.get("fmt"),
+    publicKey: result.authnrData.get("credentialPublicKeyPem"),
+    counter: result.authnrData.get("counter"),
+    credID: result.authnrData.get("credId")
+  };
+
+  if (req.session) {
+    database[req.session.username].authenticators.push(authrInfo);
+    database[req.session.username].registerd = true;
+  }
+
   return res.json({
     status: "ok",
     errorMessage: ""
