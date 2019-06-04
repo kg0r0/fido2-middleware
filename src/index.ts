@@ -1,11 +1,34 @@
 import { NextFunction, Request, Response } from "express";
+import { isBase64UrlEncoded, randomBase64URLBuffer } from "./util";
+import config from "config";
+import { database } from "./db";
 const fido2lib = require("fido2-lib");
-const crypto = require("crypto");
-const base64url = require("base64url");
-const config = require("config");
-const database = require("./db");
 const str2ab = require("string-to-arraybuffer");
-const fido2MiddlewareConfig = config.get("fido2-middlewareConfig");
+const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
+  "fido2-middlewareConfig"
+);
+interface Fido2MiddleWareConfig {
+  db: any;
+  factor: any;
+  fido2lib: {
+    timeout: Number;
+    rpId: String;
+    challengeSize: Number;
+  };
+  origin: String;
+}
+
+interface RequestBody {
+  id: Number;
+  rawId: String;
+  response: any;
+  type: any;
+}
+
+interface ResponseBody {
+  status: string;
+  errorMessage: string | null;
+}
 
 interface AuthrInfo {
   fmt: string;
@@ -14,30 +37,19 @@ interface AuthrInfo {
   credID: string;
 }
 
-/**
- *
- * @param len
- */
-function randomBase64URLBuffer(len: number) {
-  len = len || 32;
-  const buff = crypto.randomBytes(len);
-
-  return base64url(buff);
+function isRequestBody(bodyObject: any): boolean {
+  return (
+    bodyObject.id != null &&
+    bodyObject.rawId != null &&
+    bodyObject.response != null &&
+    bodyObject.type != null
+  );
 }
 
-function preformatResultReq(resultReq: Request) {
-  resultReq.body.rawId = str2ab(resultReq.body.rawId);
-  resultReq.body.id = str2ab(resultReq.body.id);
-  return resultReq;
-}
-
-/**
- * Takes string and tries to verify base64 url encoded.
- * @param  {String} str
- * @return {Boolean}
- */
-function isBase64UrlEncoded(str: String) {
-  return !!str.match(/^[A-Za-z0-9\-_]+={0,2}$/);
+function preFormatResultReq(reqBody: RequestBody): RequestBody {
+  reqBody.id = str2ab(reqBody.id);
+  reqBody.rawId = str2ab(reqBody.rawId);
+  return reqBody;
 }
 
 /**
@@ -106,18 +118,12 @@ async function attestationOptions(req: Request, res: Response) {
  * @returns {undefined}
  */
 async function attestationResult(req: Request, res: Response) {
-  if (
-    !req.body ||
-    !req.body.id ||
-    !req.body.rawId ||
-    !req.body.response ||
-    !req.body.type
-  ) {
+  if (!(req.body != null && isRequestBody(req.body))) {
     return res.json({
       status: "failed",
       errorMessage:
         "Response missing one or more of id/rawId/response/type fields"
-    });
+    } as ResponseBody);
   }
 
   if (req.body.type !== "public-key") {
@@ -135,17 +141,17 @@ async function attestationResult(req: Request, res: Response) {
   }
 
   const fido2Lib = new fido2lib.Fido2Lib();
-  let expected = {
-    challenge: String,
-    origin: String,
-    factor: String
-  };
-  if (req.session) {
-    expected.challenge = req.session.challenge;
+  interface Expected {
+    challenge: String;
+    origin: String;
+    factor: String;
   }
-  expected.origin = fido2MiddlewareConfig.origin || "localhost";
-  expected.factor = fido2MiddlewareConfig.factor || "either";
-  const requestBody = preformatResultReq(req).body;
+  let expected: Expected = {
+    challenge: req.session ? req.session.challenge : "",
+    origin: fido2MiddlewareConfig.origin || "localhost",
+    factor: fido2MiddlewareConfig.factor || "either"
+  };
+  const requestBody: RequestBody = preFormatResultReq(req.body);
   const result = await fido2Lib
     .attestationResult(requestBody, expected)
     .catch((err: Error) => {

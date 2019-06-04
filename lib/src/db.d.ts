@@ -1,1 +1,1 @@
-declare let database: {};
+export declare const database: any;
