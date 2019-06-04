@@ -29,7 +29,6 @@ interface ResponseBody {
   status: string;
   errorMessage: string | null;
 }
-
 interface AuthrInfo {
   fmt: string;
   publicKey: string;
