@@ -6,8 +6,6 @@ import { isBase64UrlEncoded, randomBase64URLBuffer } from "../src/util";
 describe("randomBase64URLBuffer()", () => {
   const base64String1 = randomBase64URLBuffer(10);
   const base64String2 = randomBase64URLBuffer(10);
-  it("is length ok", () =>
-    expect(base64url.decode(base64String1).length).to.equal(10));
   it("is base64", () =>
     expect(isBase64UrlEncoded(base64String1)).to.equal(true));
   it("is different 1 and 2", () =>
