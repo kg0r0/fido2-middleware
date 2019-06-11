@@ -188,29 +188,28 @@ async function attestationResult(req: Request, res: Response) {
  *
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-async function assertionOptions(req: Request, res: Response, next: NextFunction) {
+async function assertionOptions(req: Request, res: Response) {
   if (!req.body || !req.body.username) {
     return res.json({
-      'status': 'failed',
-      'errorMessage': 'Request missing username field!'
-    })
+      status: "failed",
+      errorMessage: "Request missing username field!"
+    });
   }
   const serve = new fido2lib.Fido2Lib();
   const options = await serve.assertionOptions();
-  options.status = 'ok';
-  options.errorMessage = '';
+  options.status = "ok";
+  options.errorMessage = "";
   options.extensions = req.body.extensions;
   options.challenge = randomBase64URLBuffer(32);
-  options.userVerification = req.body.userVerification || 'preferred';
+  options.userVerification = req.body.userVerification || "preferred";
   if (req.session) {
     req.session.challenge = options.challenge;
     req.session.username = req.body.username;
     req.session.userVerification = options.userVerification;
   }
-  return res.json(options)
+  return res.json(options);
 }
 
 /**
