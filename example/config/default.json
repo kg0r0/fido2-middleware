@@ -1,0 +1,10 @@
+{
+    "fido2-middlewareConfig": {
+        "fido2lib": {
+            "timeout": 60000,
+            "rpId": "localhost",
+            "challengeSize": 32
+        },
+        "origin": "https://localhost:3000"
+    }
+}

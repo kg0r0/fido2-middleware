@@ -1,43 +1,43 @@
-import { NextFunction } from "connect";
-import { describe, it } from 'mocha';
+import { describe, it } from "mocha";
 
-const index = require('../src/index');
-const request = require('supertest');
-const express = require('express');
-const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session');
-const cookieParser = require('cookie-parser');
-const crypto = require('crypto');
+const index = require("../src/index");
+const request = require("supertest");
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieSession = require("cookie-session");
+const cookieParser = require("cookie-parser");
+const crypto = require("crypto");
 
-describe('attestationOptions()', () => {
+describe("attestationOptions()", () => {
   const app = express();
 
   app.use(bodyParser.json());
 
-  app.use(cookieSession({
-    name: 'session',
-    keys: [crypto.randomBytes(32).toString('hex')],
+  app.use(
+    cookieSession({
+      name: "session",
+      keys: [crypto.randomBytes(32).toString("hex")],
 
-    maxAge: 24 * 60 * 60 * 1000
-  }))
+      maxAge: 24 * 60 * 60 * 1000
+    })
+  );
 
   app.use(cookieParser());
 
-  app.use('/', index.attestationOptions);
+  app.use("/", index.attestationOptions);
 
-
-  it('should return ok status', (done) => {
+  it("should return ok status", done => {
     request(app)
-      .post('/')
-      .send({ username: 'johndoe@example.com', displayName: 'John Doe' })
-      .set('Accept', 'application/json')
-      .expect('Content-Type', /json/)
-      .expect(200, done)
-  })
+      .post("/")
+      .send({ username: "johndoe@example.com", displayName: "John Doe" })
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/)
+      .expect(200, done);
+  });
 
-  it('should return failed status', (done) => {
+  it("should return failed status", done => {
     request(app)
-      .post('/')
+      .post("/")
       .send({})
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)

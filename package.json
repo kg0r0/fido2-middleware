@@ -10,7 +10,8 @@
   "scripts": {
     "build": "tsc",
     "test": "mocha --recursive --require ts-node/register \\\"test/**/*.ts\\\"",
-    "cover": "nyc npm test"
+    "cover": "nyc npm test",
+    "lint": "eslint -c ./.eslintrc.json '{src,test}/*.{ts,tsx}'"
   },
   "repository": {
     "type": "git",
@@ -27,14 +28,26 @@
   "homepage": "https://github.com/kg0r0/fido2-middleware#readme",
   "devDependencies": {
     "@types/chai": "^4.1.7",
+    "@types/config": "0.0.34",
     "@types/express": "^4.16.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.0",
+    "@typescript-eslint/eslint-plugin": "^1.9.0",
+    "@typescript-eslint/parser": "^1.9.0",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
     "mocha": "^6.1.4",
     "nodemon": "^1.19.0",
     "nyc": "^14.1.1",
+    "prettier": "^1.17.1",
     "supertest": "^4.0.2",
     "ts-node": "^8.1.0",
     "typemoq": "^2.1.0",
@@ -43,11 +56,13 @@
   "dependencies": {
     "@types/express-session": "^1.15.12",
     "base64url": "^3.0.1",
+    "config": "^3.1.0",
     "cookie-parser": "^1.4.4",
     "cookie-session": "^1.3.3",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
-    "fido2-lib": "^2.1.1"
+    "fido2-lib": "^2.1.1",
+    "string-to-arraybuffer": "^1.0.2"
   },
   "nyc": {
     "extension": [
