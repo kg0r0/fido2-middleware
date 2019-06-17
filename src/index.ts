@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { isBase64UrlEncoded, randomBase64URLBuffer } from "./util";
 import config from "config";
+import base64url from "base64url";
 import { database } from "./db";
 const fido2lib = require("fido2-lib");
 const str2ab = require("string-to-arraybuffer");
@@ -170,7 +171,7 @@ async function attestationResult(req: Request, res: Response) {
     fmt: result.authnrData.get("fmt"),
     publicKey: result.authnrData.get("credentialPublicKeyPem"),
     counter: result.authnrData.get("counter"),
-    credID: result.authnrData.get("credId")
+    credID: base64url.encode(result.authnrData.get("credId"))
   };
 
   if (req.session) {
@@ -197,9 +198,20 @@ async function assertionOptions(req: Request, res: Response) {
       errorMessage: "Request missing username field!"
     });
   }
+
+  const authenticators = database[req.body.username].authenticators;
+  let allowCredentials = [];
+  for (let authr of authenticators) {
+    allowCredentials.push({
+      type: "public-key",
+      id: authr.credID
+    });
+  }
+
   const serve = new fido2lib.Fido2Lib();
   const options = await serve.assertionOptions();
   options.status = "ok";
+  options.allowCredentials = allowCredentials;
   options.errorMessage = "";
   options.extensions = req.body.extensions;
   options.challenge = randomBase64URLBuffer(32);
