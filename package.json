@@ -2,8 +2,8 @@
   "name": "fido2-middleware",
   "version": "0.0.1",
   "description": "Parse FIDO2 request",
-  "main": "lib/index.js",
-  "types": "lib/index",
+  "main": "lib/src/index.js",
+  "types": "lib/src/index",
   "directories": {
     "test": "test"
   },
