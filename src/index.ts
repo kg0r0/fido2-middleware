@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { isBase64UrlEncoded, randomBase64URLBuffer } from "./util";
 import config from "config";
 import base64url from "base64url";
@@ -47,9 +47,28 @@ function isRequestBody(bodyObject: any): boolean {
 }
 
 function preFormatResultReq(reqBody: RequestBody): RequestBody {
+  if (reqBody.response.authenticatorData) {
+    reqBody.response.authenticatorData = toArrayBuffer(base64url.toBuffer(reqBody.response.authenticatorData));
+  }
   reqBody.id = str2ab(reqBody.id);
   reqBody.rawId = str2ab(reqBody.rawId);
   return reqBody;
+}
+
+function findAuthr(credID: String, authenticators: AuthrInfo[]) {
+  for (let authr of authenticators) {
+    if (authr.credID === credID) return authr;
+  }
+  throw new Error(`Unknown authenticator with credID ${credID}`);
+}
+
+function toArrayBuffer(buf: any) {
+  var ab = new ArrayBuffer(buf.length);
+  var view = new Uint8Array(ab);
+  for (var i = 0; i < buf.length; ++i) {
+      view[i] = buf[i];
+  }
+  return ab;
 }
 
 /**
@@ -231,8 +250,70 @@ async function assertionOptions(req: Request, res: Response) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-function assertionResult(req: Request, res: Response, next: NextFunction) {
-  next();
+async function assertionResult(req: Request, res: Response) {
+  if (
+    !req.body ||
+    !req.body.id ||
+    !req.body.rawId ||
+    !req.body.response ||
+    !req.body.type ||
+    req.body.type !== "public-key"
+  ) {
+    res.json({
+      status: "failed",
+      errorMessage:
+        "Response missing one or more of id/rawId/response/type fields, or type is not public-key!"
+    });
+    return;
+  }
+
+  if (!isBase64UrlEncoded(req.body.id)) {
+    res.json({
+      status: "failed",
+      errorMessage: "Invalid id!"
+    });
+    return;
+  }
+
+  const clientData = JSON.parse(
+    base64url.decode(req.body.response.clientDataJSON)
+  );
+
+  let authenticators;
+  if (req.session) {
+    authenticators = database[req.session.username].authenticators;
+  }
+
+  const authr = findAuthr(req.body.id, authenticators);
+
+  const fido2Lib = new fido2lib.Fido2Lib();
+  const expected = {
+    challenge: clientData.challenge,
+    origin: fido2MiddlewareConfig.origin || "localhost",
+    factor: fido2MiddlewareConfig.factor || "either",
+    publicKey: authr.publicKey,
+    prevCounter: authr.counter,
+    userHandle: null 
+  };
+  let errorMessage;
+  const requestBody= preFormatResultReq(req.body)
+  const result = await fido2Lib
+    .assertionResult(requestBody, expected)
+    .catch((err: Error) => {
+      errorMessage = err.message
+    });
+
+  if (!result) {
+    return res.json({
+      status: "failed",
+      errorMessage: errorMessage 
+    });
+  }
+
+  return res.json({
+    status: "ok",
+    errorMessage: ""
+  });
 }
 
 module.exports = {
