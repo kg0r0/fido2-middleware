@@ -10,3 +10,4 @@ $ cd example
 $ npm install
 $ npm start
 ```
+Access to ``https://localhost:3000/``.
