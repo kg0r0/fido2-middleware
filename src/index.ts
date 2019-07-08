@@ -48,7 +48,9 @@ function isRequestBody(bodyObject: any): boolean {
 
 function preFormatResultReq(reqBody: RequestBody): RequestBody {
   if (reqBody.response.authenticatorData) {
-    reqBody.response.authenticatorData = toArrayBuffer(base64url.toBuffer(reqBody.response.authenticatorData));
+    reqBody.response.authenticatorData = toArrayBuffer(
+      base64url.toBuffer(reqBody.response.authenticatorData)
+    );
   }
   reqBody.id = str2ab(reqBody.id);
   reqBody.rawId = str2ab(reqBody.rawId);
@@ -66,7 +68,7 @@ function toArrayBuffer(buf: any) {
   var ab = new ArrayBuffer(buf.length);
   var view = new Uint8Array(ab);
   for (var i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
+    view[i] = buf[i];
   }
   return ab;
 }
@@ -293,20 +295,20 @@ async function assertionResult(req: Request, res: Response) {
     factor: fido2MiddlewareConfig.factor || "either",
     publicKey: authr.publicKey,
     prevCounter: authr.counter,
-    userHandle: null 
+    userHandle: null
   };
   let errorMessage;
-  const requestBody= preFormatResultReq(req.body)
+  const requestBody = preFormatResultReq(req.body);
   const result = await fido2Lib
     .assertionResult(requestBody, expected)
     .catch((err: Error) => {
-      errorMessage = err.message
+      errorMessage = err.message;
     });
 
   if (!result) {
     return res.json({
       status: "failed",
-      errorMessage: errorMessage 
+      errorMessage: errorMessage
     });
   }
 
