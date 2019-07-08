@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { isBase64UrlEncoded, randomBase64URLBuffer } from "./util";
+import {
+  isBase64UrlEncoded,
+  randomBase64URLBuffer,
+  toArrayBuffer,
+  isRequestBody
+} from "./util";
 import config from "config";
 import base64url from "base64url";
 import { database } from "./db";
@@ -10,7 +15,7 @@ const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
 );
 interface Fido2MiddleWareConfig {
   db: any;
-  factor: any;
+  factor: String;
   fido2lib: {
     timeout: Number;
     rpId: String;
@@ -23,27 +28,63 @@ interface RequestBody {
   id: Number;
   rawId: String;
   response: any;
-  type: any;
+  type: String;
 }
 
 interface ResponseBody {
-  status: string;
-  errorMessage: string | null;
+  status: String;
+  errorMessage: String | unknown;
 }
 interface AuthrInfo {
-  fmt: string;
-  publicKey: string;
-  counter: number;
-  credID: string;
+  fmt: String;
+  publicKey: String;
+  counter: Number;
+  credID: String;
 }
 
-function isRequestBody(bodyObject: any): boolean {
-  return (
-    bodyObject.id != null &&
-    bodyObject.rawId != null &&
-    bodyObject.response != null &&
-    bodyObject.type != null
-  );
+interface AttestationOptions {
+  rp: any;
+  user: any;
+  challenge: String;
+  pubKeyCredParams: Object[];
+  timeout: Number;
+  attestation: String;
+  status: String;
+  errorMessage: String;
+  extensions: any;
+  authenticatorSelection: Object | unknown;
+  excludeCredentials: Object[] | unknown;
+}
+
+interface AssertionOptions {
+  challenge: String;
+  timeout: Number;
+  status: String;
+  allowCredentials: any;
+  errorMessage: String;
+  extensions: any;
+  userVerification: String;
+}
+
+interface ClientDataJSON {
+  challenge: String;
+  origin: String;
+  type: String;
+}
+
+interface AttestationExpected {
+  challenge: String;
+  origin: String;
+  factor: String;
+}
+
+interface AssertionExpected {
+  challenge: String;
+  origin: String;
+  factor: String;
+  publicKey: String;
+  prevCounter: Number;
+  userHandle: String | null;
 }
 
 function preFormatResultReq(reqBody: RequestBody): RequestBody {
@@ -62,15 +103,6 @@ function findAuthr(credID: String, authenticators: AuthrInfo[]) {
     if (authr.credID === credID) return authr;
   }
   throw new Error(`Unknown authenticator with credID ${credID}`);
-}
-
-function toArrayBuffer(buf: any) {
-  var ab = new ArrayBuffer(buf.length);
-  var view = new Uint8Array(ab);
-  for (var i = 0; i < buf.length; ++i) {
-    view[i] = buf[i];
-  }
-  return ab;
 }
 
 /**
@@ -108,21 +140,28 @@ async function attestationOptions(req: Request, res: Response) {
   }
 
   const fido2Lib = new fido2lib.Fido2Lib(fido2MiddlewareConfig.fido2lib);
-  const options = await fido2Lib.attestationOptions().catch((err: Error) => {
+  const result = await fido2Lib.attestationOptions().catch((err: Error) => {
     return res.json({
       status: "failed",
       errorMessage: err.message
     });
   });
-  options.status = "ok";
-  options.errorMessage = "";
-  options.extensions = req.body.extensions;
-  options.authenticatorSelection = req.body.authenticatorSelection;
-  options.excludeCredentials = excludeCredentials;
-  options.user.name = req.body.username;
-  options.user.id = randomBase64URLBuffer(32);
-  options.challenge = randomBase64URLBuffer(32);
-  options.user.displayName = req.body.displayName;
+  result.user.name = req.body.username;
+  result.user.id = randomBase64URLBuffer(32);
+  result.user.displayName = req.body.displayName;
+  const options: AttestationOptions = {
+    rp: result.rp,
+    user: result.user,
+    challenge: randomBase64URLBuffer(32),
+    pubKeyCredParams: result.pubKeyCredParams,
+    timeout: result.timeout,
+    attestation: result.attestation,
+    status: "ok",
+    errorMessage: "",
+    extensions: req.body.extensions,
+    authenticatorSelection: req.body.authenticatorSelection,
+    excludeCredentials: excludeCredentials
+  };
   if (req.session) {
     req.session.challenge = options.challenge;
     req.session.username = req.body.username;
@@ -162,12 +201,7 @@ async function attestationResult(req: Request, res: Response) {
   }
 
   const fido2Lib = new fido2lib.Fido2Lib();
-  interface Expected {
-    challenge: String;
-    origin: String;
-    factor: String;
-  }
-  let expected: Expected = {
+  const expected: AttestationExpected = {
     challenge: req.session ? req.session.challenge : "",
     origin: fido2MiddlewareConfig.origin || "localhost",
     factor: fido2MiddlewareConfig.factor || "either"
@@ -198,6 +232,7 @@ async function attestationResult(req: Request, res: Response) {
   if (req.session) {
     database[req.session.username].authenticators.push(authrInfo);
     database[req.session.username].registerd = true;
+    req.session.loggedIn = true;
   }
 
   return res.json({
@@ -230,13 +265,16 @@ async function assertionOptions(req: Request, res: Response) {
   }
 
   const serve = new fido2lib.Fido2Lib();
-  const options = await serve.assertionOptions();
-  options.status = "ok";
-  options.allowCredentials = allowCredentials;
-  options.errorMessage = "";
-  options.extensions = req.body.extensions;
-  options.challenge = randomBase64URLBuffer(32);
-  options.userVerification = req.body.userVerification || "preferred";
+  const result = await serve.assertionOptions();
+  const options: AssertionOptions = {
+    challenge: randomBase64URLBuffer(32),
+    timeout: result.timeout,
+    status: "ok",
+    allowCredentials: allowCredentials,
+    errorMessage: "",
+    extensions: req.body.extensions,
+    userVerification: req.body.userVerification || "preferred"
+  };
   if (req.session) {
     req.session.challenge = options.challenge;
     req.session.username = req.body.username;
@@ -253,20 +291,19 @@ async function assertionOptions(req: Request, res: Response) {
  * @returns {undefined}
  */
 async function assertionResult(req: Request, res: Response) {
-  if (
-    !req.body ||
-    !req.body.id ||
-    !req.body.rawId ||
-    !req.body.response ||
-    !req.body.type ||
-    req.body.type !== "public-key"
-  ) {
-    res.json({
+  if (!(req.body != null && isRequestBody(req.body))) {
+    return res.json({
       status: "failed",
       errorMessage:
-        "Response missing one or more of id/rawId/response/type fields, or type is not public-key!"
+        "Response missing one or more of id/rawId/response/type fields"
+    } as ResponseBody);
+  }
+
+  if (req.body.type !== "public-key") {
+    return res.json({
+      status: "failed",
+      errorMessage: "type is not public-key!"
     });
-    return;
   }
 
   if (!isBase64UrlEncoded(req.body.id)) {
@@ -277,7 +314,7 @@ async function assertionResult(req: Request, res: Response) {
     return;
   }
 
-  const clientData = JSON.parse(
+  const clientData: ClientDataJSON = JSON.parse(
     base64url.decode(req.body.response.clientDataJSON)
   );
 
@@ -289,7 +326,7 @@ async function assertionResult(req: Request, res: Response) {
   const authr = findAuthr(req.body.id, authenticators);
 
   const fido2Lib = new fido2lib.Fido2Lib();
-  const expected = {
+  const expected: AssertionExpected = {
     challenge: clientData.challenge,
     origin: fido2MiddlewareConfig.origin || "localhost",
     factor: fido2MiddlewareConfig.factor || "either",
@@ -305,11 +342,15 @@ async function assertionResult(req: Request, res: Response) {
       errorMessage = err.message;
     });
 
-  if (!result) {
+  if (!result || errorMessage) {
     return res.json({
       status: "failed",
       errorMessage: errorMessage
     });
+  }
+
+  if (req.session) {
+    req.session.loggedIn = true;
   }
 
   return res.json({
