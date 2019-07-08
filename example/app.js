@@ -34,6 +34,7 @@ app.use('/users', usersRouter);
 app.use('/attestation/options', index.attestationOptions);
 app.use('/attestation/result', index.attestationResult);
 app.use('/assertion/options', index.assertionOptions);
+app.use('/assertion/result', index.assertionResult);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
