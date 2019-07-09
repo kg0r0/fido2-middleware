@@ -1,6 +1,8 @@
+/// <reference types="node" />
 /**
  *
- * @param len
+ * @param {Number} len
+ * @returns {String}
  */
 export declare function randomBase64URLBuffer(len: number): string;
 /**
@@ -9,3 +11,15 @@ export declare function randomBase64URLBuffer(len: number): string;
  * @return {Boolean}
  */
 export declare function isBase64UrlEncoded(str: String): boolean;
+/**
+ *
+ * @param {Buffer} buf
+ * @returns {ArrayBuffer}
+ */
+export declare function toArrayBuffer(buf: Buffer): ArrayBuffer;
+/**
+ * Takes object and tires to verify request body.
+ * @param {Object} bodyObject
+ * @returns {Boolean}
+ */
+export declare function isRequestBody(bodyObject: any): boolean;

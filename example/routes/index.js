@@ -32,21 +32,17 @@ router.get('/logout', (req, res) => {
 
 /* Returns personal info and THE SECRET INFORMATION */
 router.get('/personalInfo', (req, res) => {
-    res.json({
-        'status': 'ok',
-        'name': 'anonymous'
-    });
-//  if(!req.session.loggedIn) {
-//      res.json({
-//          'status': 'failed',
-//          'errorMessage': 'Access denied'
-//      })
-//  } else {
-//      res.json({
-//          'status': 'ok',
-//          'name': database[req.session.username].name,
-//      })
-//  }
+  if(!req.session.loggedIn) {
+      res.json({
+          'status': 'failed',
+          'errorMessage': 'Access denied'
+      })
+  } else {
+      res.json({
+          'status': 'ok',
+          'name': req.session.username,
+      })
+  }
 })
 
 module.exports = router;
