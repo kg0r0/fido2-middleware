@@ -1,0 +1,24 @@
+{
+  "projectName": "fido2-middleware",
+  "projectOwner": "kg0r0",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "shiv3",
+      "name": "shiv3",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/9666625?v=4",
+      "profile": "https://github.com/shiv3",
+      "contributions": [
+        "doc"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
