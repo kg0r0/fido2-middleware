@@ -7,9 +7,9 @@ import {
 } from "./util";
 import config from "config";
 import base64url from "base64url";
-import { database } from "./db";
 const fido2lib = require("fido2-lib");
 const str2ab = require("string-to-arraybuffer");
+const cache = require("./cache");
 const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
   "fido2-middlewareConfig"
 );
@@ -122,20 +122,21 @@ async function attestationOptions(req: Request, res: Response) {
 
   let excludeCredentials;
   if (!fido2MiddlewareConfig.db) {
-    if (database[req.body.username] && database[req.body.username].registered) {
+    const cacheData = await cache.getAsync(req.body.username);
+    if (cacheData && cacheData.registered) {
       excludeCredentials = [
         {
           type: "public-key",
-          id: database[req.body.username].authenticatorp[0].credID
+          id: cacheData.authenticators[0].credID
         }
       ];
     } else {
-      database[req.body.username] = {
+      await cache.setAsync(req.body.username, {
         name: req.body.displayName,
         registerd: false,
         id: randomBase64URLBuffer(32),
         authenticators: []
-      };
+      });
     }
   }
 
@@ -230,8 +231,17 @@ async function attestationResult(req: Request, res: Response) {
   };
 
   if (req.session) {
-    database[req.session.username].authenticators.push(authrInfo);
-    database[req.session.username].registerd = true;
+    const cacheData = await cache.getAsync(req.session.username);
+    let authenticators = [];
+    if (cacheData) {
+      authenticators = cacheData.authenticators;
+    }
+    authenticators.push(authrInfo);
+    const obj = {
+      authenticators: authenticators,
+      registered: true
+    };
+    await cache.setAsync(req.session.username, obj);
     req.session.loggedIn = true;
   }
 
@@ -255,7 +265,8 @@ async function assertionOptions(req: Request, res: Response) {
     });
   }
 
-  const authenticators = database[req.body.username].authenticators;
+  const cacheData = await cache.getAsync(req.body.username);
+  const authenticators = cacheData.authenticators;
   let allowCredentials = [];
   for (let authr of authenticators) {
     allowCredentials.push({
@@ -320,7 +331,8 @@ async function assertionResult(req: Request, res: Response) {
 
   let authenticators;
   if (req.session) {
-    authenticators = database[req.session.username].authenticators;
+    const cacheData = await cache.getAsync(req.session.username);
+    authenticators = cacheData.authenticators;
   }
 
   const authr = findAuthr(req.body.id, authenticators);

@@ -22,11 +22,11 @@ export function isBase64UrlEncoded(str: String): boolean {
 }
 
 /**
- * 
- * @param {Buffer} buf 
+ *
+ * @param {Buffer} buf
  * @returns {ArrayBuffer}
  */
-export function toArrayBuffer(buf: Buffer):ArrayBuffer {
+export function toArrayBuffer(buf: Buffer): ArrayBuffer {
   const ab = new ArrayBuffer(buf.length);
   const view = new Uint8Array(ab);
   for (var i = 0; i < buf.length; ++i) {
