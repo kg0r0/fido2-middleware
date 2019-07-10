@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 interface AttestationOptions {
     rp: any;
     user: any;
@@ -19,7 +19,7 @@ interface AttestationOptions {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function attestationOptions(req: Request, res: Response): Promise<AttestationOptions | {
+export declare function attestationOptions(req: Request): Promise<AttestationOptions | {
     status: string;
     errorMessage: string;
 }>;
@@ -30,7 +30,7 @@ export declare function attestationOptions(req: Request, res: Response): Promise
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function attestationResult(req: Request, res: Response): Promise<{
+export declare function attestationResult(req: Request): Promise<{
     status: string;
     errorMessage: string;
 }>;

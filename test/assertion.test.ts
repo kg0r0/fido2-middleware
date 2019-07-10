@@ -1,50 +1,29 @@
 import { describe, it } from "mocha";
+import { assertionOptions } from "../src/assertion"
+import { mockReq } from "sinon-express-mock"
+import { expect } from "chai";
 
-const index = require("../src/assertion");
-const request = require("supertest");
-const express = require("express");
-const bodyParser = require("body-parser");
-const cookieSession = require("cookie-session");
-const cookieParser = require("cookie-parser");
-const crypto = require("crypto");
+describe("attestationOptions()", () => {
+  it("should return ok status", async () => {
+    const request = {
+      body: {
+        username: "johndoe@example.com",
+      },
+      session: {
+      }
 
-describe("assertionOptions()", () => {
-  const app = express();
-
-  app.use(bodyParser.json());
-
-  app.use(
-    cookieSession({
-      name: "session",
-      keys: [crypto.randomBytes(32).toString("hex")],
-
-      maxAge: 24 * 60 * 60 * 1000
-    })
-  );
-
-  app.use(cookieParser());
-
-  app.use("/", index.assertionOptions);
-
-  it("should return ok status", done => {
-    request(app)
-      .post("/")
-      .send({ username: "johndoe@example.com", displayName: "John Doe" })
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(200, done);
+    }
+    const requestMock = mockReq(request)
+    const options = await assertionOptions(requestMock)
+    expect(options.status).to.equal("ok");
   });
 
-  it("should return failed status", done => {
-    request(app)
-      .post("/")
-      .send({})
-      .set("Accept", "application/json")
-      .expect("Content-Type", /json/)
-      .expect(
-        200,
-        '{"status":"failed","errorMessage":"Request missing username field!"}',
-        done
-      );
+  it("should return failed status", async() => {
+    const request = {
+
+    };
+    const requestMock = mockReq(request);
+    const options = await assertionOptions(requestMock);
+    expect(options.status).to.equal("failed");
   });
 });
