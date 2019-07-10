@@ -11,7 +11,9 @@
     "build": "tsc",
     "test": "mocha --recursive --require ts-node/register \\\"test/**/*.ts\\\"",
     "cover": "nyc npm test",
-    "lint": "eslint -c ./.eslintrc.json '{src,test}/*.{ts,tsx}'"
+    "lint": "eslint -c ./.eslintrc.json '{src,test}/*.{ts,tsx}'",
+    "contributors:add": "all-contributors add",
+    "contributors:generate": "all-contributors generate"
   },
   "repository": {
     "type": "git",
@@ -36,6 +38,7 @@
     "@types/sinon-express-mock": "^1.3.7",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
+    "all-contributors-cli": "^6.7.0",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
