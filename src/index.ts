@@ -179,6 +179,7 @@ async function attestationOptions(req: Request, res: Response) {
  * @returns {undefined}
  */
 async function attestationResult(req: Request, res: Response) {
+  let errorMessage;
   if (!(req.body != null && isRequestBody(req.body))) {
     return res.json({
       status: "failed",
@@ -193,11 +194,17 @@ async function attestationResult(req: Request, res: Response) {
       errorMessage: "type is not public-key!"
     });
   }
+  let isBase64Url;
+  try {
+    isBase64Url = isBase64UrlEncoded(req.body.id)
+  } catch (e) {
+    errorMessage = e.message;
+  }
 
-  if (!isBase64UrlEncoded(req.body.id)) {
+  if (!isBase64Url) {
     return res.json({
       status: "failed",
-      errorMessage: "Invalid id!"
+      errorMessage: errorMessage || "Invalid id!"
     });
   }
 
@@ -211,16 +218,13 @@ async function attestationResult(req: Request, res: Response) {
   const result = await fido2Lib
     .attestationResult(requestBody, expected)
     .catch((err: Error) => {
-      return res.json({
-        status: "failed",
-        errorMessage: err.message
-      });
+      errorMessage = err.message;
     });
 
-  if (!result) {
+  if (!result || errorMessage) {
     return res.json({
       status: "failed",
-      errorMessage: "Can not authenticate signature!"
+      errorMessage: errorMessage
     });
   }
   const authrInfo: AuthrInfo = {
@@ -302,6 +306,7 @@ async function assertionOptions(req: Request, res: Response) {
  * @returns {undefined}
  */
 async function assertionResult(req: Request, res: Response) {
+  let errorMessage;
   if (!(req.body != null && isRequestBody(req.body))) {
     return res.json({
       status: "failed",
@@ -316,18 +321,33 @@ async function assertionResult(req: Request, res: Response) {
       errorMessage: "type is not public-key!"
     });
   }
+  let isBase64Url;
+  try {
+    isBase64Url = isBase64UrlEncoded(req.body.id);
+  } catch (e) {
+    errorMessage = e.message;
+  }
 
-  if (!isBase64UrlEncoded(req.body.id)) {
+  if (!isBase64Url || errorMessage) {
     res.json({
       status: "failed",
-      errorMessage: "Invalid id!"
+      errorMessage: errorMessage || "Invalid id!"
     });
     return;
   }
 
-  const clientData: ClientDataJSON = JSON.parse(
-    base64url.decode(req.body.response.clientDataJSON)
-  );
+  let clientData: ClientDataJSON = {
+    challenge: "",
+    type: "",
+    origin: ""
+  };
+  try {
+    clientData = JSON.parse(
+      base64url.decode(req.body.response.clientDataJSON)
+    )
+  } catch (e) {
+    errorMessage = e.message;
+  }
 
   let authenticators;
   if (req.session) {
@@ -346,7 +366,6 @@ async function assertionResult(req: Request, res: Response) {
     prevCounter: authr.counter,
     userHandle: null
   };
-  let errorMessage;
   const requestBody = preFormatResultReq(req.body);
   const result = await fido2Lib
     .assertionResult(requestBody, expected)
