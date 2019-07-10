@@ -75,10 +75,10 @@ interface AttestationExpected {
  */
 export async function attestationOptions(req: Request, res: Response) {
   if (!req.body || !req.body.username || !req.body.displayName) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: "Request missing display name or username field!"
-    });
+    };
   }
 
   let excludeCredentials;
@@ -103,10 +103,10 @@ export async function attestationOptions(req: Request, res: Response) {
 
   const fido2Lib = new fido2lib.Fido2Lib(fido2MiddlewareConfig.fido2lib);
   const result = await fido2Lib.attestationOptions().catch((err: Error) => {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: err.message
-    });
+    };
   });
   result.user.name = req.body.username;
   result.user.id = randomBase64URLBuffer(32);
@@ -129,7 +129,7 @@ export async function attestationOptions(req: Request, res: Response) {
     req.session.username = req.body.username;
   }
 
-  return res.json(options);
+  return options;
 }
 
 /**
@@ -142,18 +142,18 @@ export async function attestationOptions(req: Request, res: Response) {
 export async function attestationResult(req: Request, res: Response) {
   let errorMessage;
   if (!(req.body != null && isRequestBody(req.body))) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage:
         "Response missing one or more of id/rawId/response/type fields"
-    } as ResponseBody);
+    };
   }
 
   if (req.body.type !== "public-key") {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: "type is not public-key!"
-    });
+    };
   }
   let isBase64Url;
   try {
@@ -163,10 +163,10 @@ export async function attestationResult(req: Request, res: Response) {
   }
 
   if (!isBase64Url) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: errorMessage || "Invalid id!"
-    });
+    };
   }
 
   const fido2Lib = new fido2lib.Fido2Lib();
@@ -183,10 +183,10 @@ export async function attestationResult(req: Request, res: Response) {
     });
 
   if (!result || errorMessage) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: errorMessage
-    });
+    };
   }
   const authrInfo: AuthrInfo = {
     fmt: result.authnrData.get("fmt"),
@@ -207,11 +207,11 @@ export async function attestationResult(req: Request, res: Response) {
       registered: true
     };
     await cache.setAsync(req.session.username, obj);
+    req.session.loggedIn = true;
   }
-  res.cookie(fido2MiddlewareConfig.cookie.name || "webauthn", "cookie_value")
 
-  return res.json({
+  return {
     status: "ok",
     errorMessage: ""
-  });
+  };
 }

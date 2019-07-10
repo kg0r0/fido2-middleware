@@ -28,49 +28,48 @@ interface Fido2MiddleWareConfig {
 }
 
 async function webAuthentication(req: Request, res: Response, next: NextFunction) {
-//  if (!req.cookies[fido2MiddlewareConfig.cookie.name]|| false) {
-    let errorMessage;
-    console.log(req.url)
-    switch (req.url) {
-      case fido2MiddlewareConfig.attestationOptionsPath || "/attestation/options":
-        try {
-          await attestationOptions(req, res);
-        } catch (e) {
-          errorMessage = e.message;
-        }
-        break;
-      case fido2MiddlewareConfig.attestationResultPath || "/attestation/result":
-        try {
-          await attestationResult(req, res);
-        } catch (e) {
-          errorMessage = e.message;
-        }
-        break;
-      case fido2MiddlewareConfig.assertionOptionsPath || "/assertion/options":
-        try {
-          await assertionOptions(req, res);
-        } catch (e) {
-          errorMessage = e.message;
-        }
-        break;
-      case fido2MiddlewareConfig.assertionResultPath || "/assertion/result":
-        try {
-          await assertionResult(req, res);
-        } catch (e) {
-          errorMessage = e.message;
-        }
-        break;
-    }
-    if (errorMessage) {
-      return res.json({
-        status: "failed",
-        errorMessage: errorMessage
-      })
-    }
-//  } else {
-//    next();
-//  }
+  let options;
+  let errorMessage;
+  switch (req.url) {
+    case fido2MiddlewareConfig.attestationOptionsPath || "/attestation/options":
+      try {
+        options = await attestationOptions(req, res);
+      } catch (e) {
+        errorMessage = e.message;
+      }
+      break;
+    case fido2MiddlewareConfig.attestationResultPath || "/attestation/result":
+      try {
+        options = await attestationResult(req, res);
+      } catch (e) {
+        errorMessage = e.message;
+      }
+      break;
+    case fido2MiddlewareConfig.assertionOptionsPath || "/assertion/options":
+      try {
+        options = await assertionOptions(req, res);
+      } catch (e) {
+        errorMessage = e.message;
+      }
+      break;
+    case fido2MiddlewareConfig.assertionResultPath || "/assertion/result":
+      try {
+        options = await assertionResult(req, res);
+      } catch (e) {
+        errorMessage = e.message;
+      }
+      break;
+  }
+  if (errorMessage) {
+    return res.json({
+      status: "failed",
+      errorMessage: errorMessage
+    })
+  } else if (options) {
+    return res.json(options);
+  } else {
     next();
+  }
 }
 
 module.exports = {

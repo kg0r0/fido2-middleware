@@ -79,10 +79,10 @@ function findAuthr(credID: String, authenticators: AuthrInfo[]) {
  */
 export async function assertionOptions(req: Request, res: Response) {
   if (!req.body || !req.body.username) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: "Request missing username field!"
-    });
+    };
   }
 
   const cacheData = await cache.getAsync(req.body.username);
@@ -111,7 +111,7 @@ export async function assertionOptions(req: Request, res: Response) {
     req.session.username = req.body.username;
     req.session.userVerification = options.userVerification;
   }
-  return res.json(options);
+  return options;
 }
 
 /**
@@ -124,18 +124,18 @@ export async function assertionOptions(req: Request, res: Response) {
 export async function assertionResult(req: Request, res: Response) {
   let errorMessage;
   if (!(req.body != null && isRequestBody(req.body))) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage:
         "Response missing one or more of id/rawId/response/type fields"
-    } as ResponseBody);
+    };
   }
 
   if (req.body.type !== "public-key") {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: "type is not public-key!"
-    });
+    };
   }
   let isBase64Url;
   try {
@@ -190,16 +190,18 @@ export async function assertionResult(req: Request, res: Response) {
     });
 
   if (!result || errorMessage) {
-    return res.json({
+    return {
       status: "failed",
       errorMessage: errorMessage
-    });
+    };
   }
 
-  res.cookie(fido2MiddlewareConfig.cookie.name || "webauthn", "cookie_value")
+  if (req.session) {
+    req.session.loggedIn = true;
+  }
 
-  return res.json({
+  return {
     status: "ok",
     errorMessage: ""
-  });
+  };
 }

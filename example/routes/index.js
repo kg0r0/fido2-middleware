@@ -8,19 +8,16 @@ router.get('/', function (req, res, next) {
 
 /* Returns if user is logged in */
 router.get('/isLoggedIn', (req, res) => {
-    res.json({
-        'status': 'ok'
-    })
-//    if (!req.cookies[fido2MiddlewareConfig.cookie.name]) {
-//        res.json({
-//            'status': 'failed',
-//            'errorMessage': 'Not Logged in.'
-//        })
-//    } else {
-//        res.json({
-//            'status': 'ok'
-//        })
-//    }
+    if (!req.session.loggedIn) {
+        res.json({
+            'status': 'failed',
+            'errorMessage': 'Not Logged in.'
+        })
+    } else {
+        res.json({
+            'status': 'ok'
+        })
+    }
 })
 
 /* Logs user out */

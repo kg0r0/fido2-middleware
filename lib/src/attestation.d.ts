@@ -1,4 +1,17 @@
 import { Request, Response } from "express";
+interface AttestationOptions {
+    rp: any;
+    user: any;
+    challenge: String;
+    pubKeyCredParams: Object[];
+    timeout: Number;
+    attestation: String;
+    status: String;
+    errorMessage: String;
+    extensions: any;
+    authenticatorSelection: Object | unknown;
+    excludeCredentials: Object[] | unknown;
+}
 /**
  *
  * @param {Object} req - Express request object
@@ -6,7 +19,10 @@ import { Request, Response } from "express";
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function attestationOptions(req: Request, res: Response): Promise<import("express-serve-static-core").Response>;
+export declare function attestationOptions(req: Request, res: Response): Promise<AttestationOptions | {
+    status: string;
+    errorMessage: string;
+}>;
 /**
  *
  * @param {Object} req - Express request object
@@ -14,4 +30,8 @@ export declare function attestationOptions(req: Request, res: Response): Promise
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function attestationResult(req: Request, res: Response): Promise<import("express-serve-static-core").Response>;
+export declare function attestationResult(req: Request, res: Response): Promise<{
+    status: string;
+    errorMessage: any;
+}>;
+export {};
