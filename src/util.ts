@@ -64,4 +64,3 @@ export function preFormatResultReq(reqBody: RequestBody): RequestBody {
   reqBody.rawId = str2ab(reqBody.rawId);
   return reqBody;
 }
-

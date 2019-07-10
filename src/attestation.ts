@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import {
   isBase64UrlEncoded,
   randomBase64URLBuffer,
@@ -25,7 +25,7 @@ interface Fido2MiddleWareConfig {
     name: string;
     maxAge: number;
     httpOnly: boolean;
-  }
+  };
 }
 
 interface RequestBody {
@@ -73,7 +73,7 @@ interface AttestationExpected {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export async function attestationOptions(req: Request, res: Response) {
+export async function attestationOptions(req: Request) {
   if (!req.body || !req.body.username || !req.body.displayName) {
     return {
       status: "failed",
@@ -139,8 +139,7 @@ export async function attestationOptions(req: Request, res: Response) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export async function attestationResult(req: Request, res: Response) {
-  let errorMessage;
+export async function attestationResult(req: Request) {
   if (!(req.body != null && isRequestBody(req.body))) {
     return {
       status: "failed",
@@ -155,17 +154,11 @@ export async function attestationResult(req: Request, res: Response) {
       errorMessage: "type is not public-key!"
     };
   }
-  let isBase64Url;
-  try {
-    isBase64Url = isBase64UrlEncoded(req.body.id)
-  } catch (e) {
-    errorMessage = e.message;
-  }
 
-  if (!isBase64Url) {
+  if (!isBase64UrlEncoded(req.body.id)) {
     return {
       status: "failed",
-      errorMessage: errorMessage || "Invalid id!"
+      errorMessage: "Invalid id!"
     };
   }
 
@@ -179,15 +172,12 @@ export async function attestationResult(req: Request, res: Response) {
   const result = await fido2Lib
     .attestationResult(requestBody, expected)
     .catch((err: Error) => {
-      errorMessage = err.message;
+      return {
+        status: "failed",
+        errorMessage: err.message
+      };
     });
 
-  if (!result || errorMessage) {
-    return {
-      status: "failed",
-      errorMessage: errorMessage
-    };
-  }
   const authrInfo: AuthrInfo = {
     fmt: result.authnrData.get("fmt"),
     publicKey: result.authnrData.get("credentialPublicKeyPem"),

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 interface AssertionOptions {
     challenge: String;
     timeout: Number;
@@ -11,10 +11,9 @@ interface AssertionOptions {
 /**
  *
  * @param {Object} req - Express request object
- * @param {Object} res - Express response object
  * @returns {undefined}
  */
-export declare function assertionOptions(req: Request, res: Response): Promise<AssertionOptions | {
+export declare function assertionOptions(req: Request): Promise<AssertionOptions | {
     status: string;
     errorMessage: string;
 }>;
@@ -25,8 +24,8 @@ export declare function assertionOptions(req: Request, res: Response): Promise<A
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function assertionResult(req: Request, res: Response): Promise<{
+export declare function assertionResult(req: Request): Promise<{
     status: string;
-    errorMessage: any;
-} | undefined>;
+    errorMessage: string;
+}>;
 export {};

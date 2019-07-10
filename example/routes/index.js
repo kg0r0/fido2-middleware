@@ -22,11 +22,26 @@ router.get('/isLoggedIn', (req, res) => {
 
 /* Logs user out */
 router.get('/logout', (req, res) => {
-    clearCookie(fido2MiddlewareConfig.cookie.name)
+    req.session.loggedIn = false;
     req.session.username = undefined;
     res.json({
         'status': 'ok'
     })
+})
+
+/* Returns personal info and THE SECRET INFORMATION */
+router.get('/personalInfo', (req, res) => {
+    if (!req.session.loggedIn) {
+        res.json({
+            'status': 'failed',
+            'errorMessage': 'Access denied'
+        })
+    } else {
+        res.json({
+            'status': 'ok',
+            'name': req.session.username,
+        })
+    }
 })
 
 module.exports = router;

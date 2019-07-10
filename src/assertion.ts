@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import {
   isBase64UrlEncoded,
   randomBase64URLBuffer,
@@ -25,13 +25,9 @@ interface Fido2MiddleWareConfig {
     name: string;
     maxAge: number;
     httpOnly: boolean;
-  }
+  };
 }
 
-interface ResponseBody {
-  status: String;
-  errorMessage: String | unknown;
-}
 interface AuthrInfo {
   fmt: String;
   publicKey: String;
@@ -53,6 +49,7 @@ interface ClientDataJSON {
   challenge: String;
   origin: String;
   type: String;
+  tokenBinding: String;
 }
 
 interface AssertionExpected {
@@ -74,10 +71,9 @@ function findAuthr(credID: String, authenticators: AuthrInfo[]) {
 /**
  *
  * @param {Object} req - Express request object
- * @param {Object} res - Express response object
  * @returns {undefined}
  */
-export async function assertionOptions(req: Request, res: Response) {
+export async function assertionOptions(req: Request) {
   if (!req.body || !req.body.username) {
     return {
       status: "failed",
@@ -121,8 +117,7 @@ export async function assertionOptions(req: Request, res: Response) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export async function assertionResult(req: Request, res: Response) {
-  let errorMessage;
+export async function assertionResult(req: Request) {
   if (!(req.body != null && isRequestBody(req.body))) {
     return {
       status: "failed",
@@ -137,32 +132,43 @@ export async function assertionResult(req: Request, res: Response) {
       errorMessage: "type is not public-key!"
     };
   }
-  let isBase64Url;
-  try {
-    isBase64Url = isBase64UrlEncoded(req.body.id);
-  } catch (e) {
-    errorMessage = e.message;
-  }
-
-  if (!isBase64Url || errorMessage) {
-    res.json({
+  if (!isBase64UrlEncoded(req.body.id)) {
+    return {
       status: "failed",
-      errorMessage: errorMessage || "Invalid id!"
-    });
-    return;
+      errorMessage: "Invalid id!"
+    };
   }
 
-  let clientData: ClientDataJSON = {
-    challenge: "",
-    type: "",
-    origin: ""
-  };
-  try {
-    clientData = JSON.parse(
-      base64url.decode(req.body.response.clientDataJSON)
-    )
-  } catch (e) {
-    errorMessage = e.message;
+  const clientData: ClientDataJSON = JSON.parse(
+    base64url.decode(req.body.response.clientDataJSON)
+  );
+
+  if (req.session && clientData.challenge !== req.session.challenge) {
+    return {
+      status: "failed",
+      errorMessage: "Challenges don't match!"
+    };
+  }
+
+  if (clientData.origin !== fido2MiddlewareConfig.origin) {
+    return {
+      status: "failed",
+      errorMessage: "Origins don't match!"
+    };
+  }
+
+  if (clientData.type !== "webauthn.get") {
+    return {
+      status: "failed",
+      errorMessage: "Type don't match!"
+    };
+  }
+
+  if (clientData.tokenBinding) {
+    return {
+      status: "failed",
+      errorMessage: "Token Binding don`t support!"
+    };
   }
 
   let authenticators;
@@ -183,18 +189,12 @@ export async function assertionResult(req: Request, res: Response) {
     userHandle: null
   };
   const requestBody = preFormatResultReq(req.body);
-  const result = await fido2Lib
-    .assertionResult(requestBody, expected)
-    .catch((err: Error) => {
-      errorMessage = err.message;
-    });
-
-  if (!result || errorMessage) {
+  await fido2Lib.assertionResult(requestBody, expected).catch((err: Error) => {
     return {
       status: "failed",
-      errorMessage: errorMessage
+      errorMessage: err.message
     };
-  }
+  });
 
   if (req.session) {
     req.session.loggedIn = true;

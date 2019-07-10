@@ -32,6 +32,6 @@ export declare function attestationOptions(req: Request, res: Response): Promise
  */
 export declare function attestationResult(req: Request, res: Response): Promise<{
     status: string;
-    errorMessage: any;
+    errorMessage: string;
 }>;
 export {};
