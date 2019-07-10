@@ -1,4 +1,10 @@
 /// <reference types="node" />
+interface RequestBody {
+    id: Number;
+    rawId: String;
+    response: any;
+    type: String;
+}
 /**
  *
  * @param {Number} len
@@ -23,3 +29,5 @@ export declare function toArrayBuffer(buf: Buffer): ArrayBuffer;
  * @returns {Boolean}
  */
 export declare function isRequestBody(bodyObject: any): boolean;
+export declare function preFormatResultReq(reqBody: RequestBody): RequestBody;
+export {};

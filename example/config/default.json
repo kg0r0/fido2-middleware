@@ -5,6 +5,11 @@
             "rpId": "localhost",
             "challengeSize": 32
         },
-        "origin": "https://localhost:3000"
+        "origin": "https://localhost:3000",
+        "cookie": {
+            "name": "webauthn",
+            "maxAge": 60000,
+            "httpOnly": true
+        }
     }
 }

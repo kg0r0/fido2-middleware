@@ -1,5 +1,13 @@
 import crypto from "crypto";
 import base64url from "base64url";
+const str2ab = require("string-to-arraybuffer");
+
+interface RequestBody {
+  id: Number;
+  rawId: String;
+  response: any;
+  type: String;
+}
 
 /**
  *
@@ -45,3 +53,15 @@ export function isRequestBody(bodyObject: any): boolean {
     bodyObject.id && bodyObject.rawId && bodyObject.response && bodyObject.type
   );
 }
+
+export function preFormatResultReq(reqBody: RequestBody): RequestBody {
+  if (reqBody.response.authenticatorData) {
+    reqBody.response.authenticatorData = toArrayBuffer(
+      base64url.toBuffer(reqBody.response.authenticatorData)
+    );
+  }
+  reqBody.id = str2ab(reqBody.id);
+  reqBody.rawId = str2ab(reqBody.rawId);
+  return reqBody;
+}
+
