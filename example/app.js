@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
 var logger = require('morgan');
 var crypto = require('crypto');
-var index = require('../lib/src/index.js');
+var fido2middleware = require('../lib/src/index.js');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -27,14 +27,11 @@ app.use(cookieSession({
   keys: [crypto.randomBytes(32).toString('hex')],
   maxAge: 24 * 60 * 60 * 1000
 }));
+app.use(fido2middleware.webAuthentication);
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/attestation/options', index.attestationOptions);
-app.use('/attestation/result', index.attestationResult);
-app.use('/assertion/options', index.assertionOptions);
-app.use('/assertion/result', index.assertionResult);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
