@@ -7,4 +7,4 @@ script:
  - npm run lint
  - npm run cover
 
-after_script: "cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js"
+after_script: node_modules/nyc/bin/nyc.js  report --reporter=text-lcov | node_modules/coveralls/bin/coveralls.js 
