@@ -8,7 +8,9 @@ import {
   preFormatAttestationResultReq,
   preFormatAssertionResultReq,
   isRequestBody,
-  assertionClientDataJSONValidater
+  assertionClientDataJSONValidator,
+  attestationResultReqValidator,
+  assertionResultReqValidator
 } from "../src/util";
 import { mockReq } from "sinon-express-mock";
 
@@ -101,12 +103,11 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
+      const result = assertionClientDataJSONValidator(
         requestMock,
         clinetDataJSON
       );
-      expect(result.status).to.equal("ok");
-      expect(result.errorMessage).to.equal("");
+      expect(result).to.equal(true);
     });
 
     it("should return 'Challenges don't match!'", () => {
@@ -116,12 +117,11 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Challenges don't match!");
+      try {
+        assertionClientDataJSONValidator(requestMock, clinetDataJSON);
+      } catch (e) {
+        expect(e.message).to.equal("Challenges don't match!");
+      }
     });
 
     it("should return 'Origins don't match!'", () => {
@@ -131,12 +131,11 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Origins don't match!");
+      try {
+        assertionClientDataJSONValidator(requestMock, clinetDataJSON);
+      } catch (e) {
+        expect(e.message).to.equal("Origins don't match!");
+      }
     });
 
     it("should return 'Type don't match!'", () => {
@@ -146,12 +145,11 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.create",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Type don't match!");
+      try {
+        assertionClientDataJSONValidator(requestMock, clinetDataJSON);
+      } catch (e) {
+        expect(e.message).to.equal("Type don't match!");
+      }
     });
 
     it("should return 'Token Binding don`t support!'", () => {
@@ -161,12 +159,184 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: "tokenBinding"
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Token Binding don`t support!");
+      try {
+        assertionClientDataJSONValidator(requestMock, clinetDataJSON);
+      } catch (e) {
+        expect(e.message).to.equal("Token Binding don`t support!");
+      }
+    });
+  });
+
+  describe("attestationResultReqValidator()", () => {
+    it("should return true", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      expect(attestationResultReqValidator(body)).to.equal(true);
+    });
+
+    it("should return 'Response missing one or more of id/rawId/response/type fields'", () => {
+      const body = {};
+      try {
+        attestationResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal(
+          "Response missing one or more of id/rawId/response/type fields"
+        );
+      }
+    });
+
+    it("should return 'type is not public-key!'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "type"
+      };
+      try {
+        attestationResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("type is not public-key!");
+      }
+    });
+
+    it("should return 'Invalid id!'", () => {
+      const body = {
+        id: "+/=",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      try {
+        attestationResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("Invalid id!");
+      }
+    });
+  });
+
+  describe("assertionResultReqValidator()", () => {
+    it("should return true", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "authenticatorData",
+          userHandle: "userHandle",
+          signature: "signature"
+        },
+        type: "public-key"
+      };
+      expect(assertionResultReqValidator(body)).to.equal(true);
+    });
+
+    it("should return 'Response missing one or more of id/rawId/response/type fields'", () => {
+      const body = {};
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal(
+          "Response missing one or more of id/rawId/response/type fields"
+        );
+      }
+    });
+
+    it("should return 'type is not public-key!'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "type"
+      };
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("type is not public-key!");
+      }
+    });
+
+    it("should return 'Invalid id!'", () => {
+      const body = {
+        id: "+/=",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("Invalid id!");
+      }
+    });
+
+    it("should return 'AuthenticatorData is missing'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("AuthenticatorData is missing");
+      }
+    });
+
+    it("should return 'AuthenticatorData is not base64url encoded'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "+/="
+        },
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal(
+          "AuthenticatorData is not base64url encoded"
+        );
+      }
+    });
+
+    it("should return 'userHandle is not of type DOMString'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "authenticatorData",
+          userHandle: 100
+        },
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("userHandle is not of type DOMString");
+      }
+    });
+
+    it("should return 'Signature is not base64url encoded'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "authenticatorData",
+          userHandle: "userHandle",
+          signature: "+/="
+        },
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body);
+      } catch (e) {
+        expect(e.message).to.equal("Signature is not base64url encoded");
+      }
     });
   });
 });

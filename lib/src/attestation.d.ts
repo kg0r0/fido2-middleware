@@ -19,10 +19,7 @@ interface AttestationOptions {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function attestationOptions(req: Request): Promise<AttestationOptions | {
-    status: string;
-    errorMessage: string;
-}>;
+export declare function attestationOptions(req: Request): Promise<AttestationOptions>;
 /**
  *
  * @param {Object} req - Express request object

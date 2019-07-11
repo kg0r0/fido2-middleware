@@ -142,40 +142,72 @@ export function preFormatAssertionResultReq(
  *
  * @param req
  * @param clientDataJSON
- * @param {Object}
+ * @param {}
  */
-export function assertionClientDataJSONValidater(
+export function assertionClientDataJSONValidator(
   req: Request,
   clientDataJSON: ClientDataJSON
-) {
-  if (req.session && clientDataJSON.challenge !== req.session.challenge) {
-    return {
-      status: "failed",
-      errorMessage: "Challenges don't match!"
-    };
-  }
-  if (clientDataJSON.origin !== fido2MiddlewareConfig.origin) {
-    return {
-      status: "failed",
-      errorMessage: "Origins don't match!"
-    };
-  }
+): boolean {
+  if (req.session && clientDataJSON.challenge !== req.session.challenge)
+    throw new Error("Challenges don't match!");
 
-  if (clientDataJSON.type !== "webauthn.get") {
-    return {
-      status: "failed",
-      errorMessage: "Type don't match!"
-    };
-  }
+  if (clientDataJSON.origin !== fido2MiddlewareConfig.origin)
+    throw new Error("Origins don't match!");
 
-  if (clientDataJSON.tokenBinding) {
-    return {
-      status: "failed",
-      errorMessage: "Token Binding don`t support!"
-    };
-  }
-  return {
-    status: "ok",
-    errorMessage: ""
-  };
+  if (clientDataJSON.type !== "webauthn.get")
+    throw new Error("Type don't match!");
+
+  if (clientDataJSON.tokenBinding)
+    throw new Error("Token Binding don`t support!");
+
+  return true;
+}
+
+export function attestationResultReqValidator(body: any): boolean {
+  if (!(body != null && isRequestBody(body)))
+    throw new Error(
+      "Response missing one or more of id/rawId/response/type fields"
+    );
+
+  if (body.type !== "public-key") throw new Error("type is not public-key!");
+
+  if (!isBase64UrlEncoded(body.id)) throw new Error("Invalid id!");
+
+  return true;
+}
+
+/**
+ *
+ * @param body
+ * @returns {boolean}
+ */
+export function assertionResultReqValidator(body: any): boolean {
+  if (!(body != null && isRequestBody(body)))
+    throw new Error(
+      "Response missing one or more of id/rawId/response/type fields"
+    );
+
+  if (body.type !== "public-key") throw new Error("type is not public-key!");
+
+  if (!isBase64UrlEncoded(body.id)) throw new Error("Invalid id!");
+
+  if (
+    !body.response.authenticatorData ||
+    typeof body.response.authenticatorData !== "string"
+  )
+    throw new Error("AuthenticatorData is missing");
+
+  if (!isBase64UrlEncoded(body.response.authenticatorData))
+    throw new Error("AuthenticatorData is not base64url encoded");
+
+  if (body.response.userHandle && typeof body.response.userHandle !== "string")
+    throw new Error("userHandle is not of type DOMString");
+
+  if (
+    typeof body.response.signature !== "string" ||
+    !isBase64UrlEncoded(body.response.signature)
+  )
+    throw new Error("Signature is not base64url encoded");
+
+  return true;
 }

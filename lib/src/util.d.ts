@@ -88,10 +88,14 @@ export declare function preFormatAssertionResultReq(reqBody: RequestBody): preFo
  *
  * @param req
  * @param clientDataJSON
- * @param {Object}
+ * @param {}
  */
-export declare function assertionClientDataJSONValidater(req: Request, clientDataJSON: ClientDataJSON): {
-    status: string;
-    errorMessage: string;
-};
+export declare function assertionClientDataJSONValidator(req: Request, clientDataJSON: ClientDataJSON): boolean;
+export declare function attestationResultReqValidator(body: any): boolean;
+/**
+ *
+ * @param body
+ * @returns {boolean}
+ */
+export declare function assertionResultReqValidator(body: any): boolean;
 export {};
