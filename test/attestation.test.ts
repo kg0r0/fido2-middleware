@@ -23,7 +23,9 @@ describe("attestationOptions()", () => {
     try {
       await attestationOptions(requestMock);
     } catch (e) {
-      expect(e.message).to.equal("Request missing display name or username field!");
+      expect(e.message).to.equal(
+        "Request missing display name or username field!"
+      );
     }
   });
 });

@@ -1,9 +1,7 @@
 import { Request } from "express";
 import {
-  isBase64UrlEncoded,
   randomBase64URLBuffer,
   preFormatAttestationResultReq,
-  isRequestBody,
   Fido2MiddleWareConfig,
   AuthrInfo,
   attestationResultReqValidator
@@ -52,7 +50,7 @@ interface AttestationExpected {
  */
 export async function attestationOptions(req: Request) {
   if (!req.body || !req.body.username || !req.body.displayName)
-     throw new Error("Request missing display name or username field!")
+    throw new Error("Request missing display name or username field!");
 
   let excludeCredentials;
   if (!fido2MiddlewareConfig.db) {
@@ -113,7 +111,7 @@ export async function attestationOptions(req: Request) {
  * @returns {undefined}
  */
 export async function attestationResult(req: Request) {
-  attestationResultReqValidator(req.body)
+  attestationResultReqValidator(req.body);
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AttestationExpected = {
     challenge: req.session ? req.session.challenge : "",

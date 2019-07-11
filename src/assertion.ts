@@ -1,9 +1,7 @@
 import { Request } from "express";
 import {
-  isBase64UrlEncoded,
   randomBase64URLBuffer,
   preFormatAssertionResultReq,
-  isRequestBody,
   assertionResultReqValidator,
   assertionClientDataJSONValidator,
   Fido2MiddleWareConfig,
@@ -51,7 +49,7 @@ function findAuthr(credID: String, authenticators: AuthrInfo[]) {
  */
 export async function assertionOptions(req: Request) {
   if (!req.body || !req.body.username)
-    throw new Error("Request missing username field!")
+    throw new Error("Request missing username field!");
 
   const cacheData = await cache.getAsync(req.body.username);
   const authenticators = cacheData ? cacheData.authenticators : [];
@@ -96,10 +94,7 @@ export async function assertionResult(req: Request) {
     base64url.decode(req.body.response.clientDataJSON)
   );
 
-  assertionClientDataJSONValidator(
-    req,
-    clientData
-  );
+  assertionClientDataJSONValidator(req, clientData);
 
   let authenticators;
   if (req.session) {
