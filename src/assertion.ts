@@ -17,7 +17,6 @@ const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
   "fido2-middlewareConfig"
 );
 
-
 interface AssertionOptions {
   challenge: String;
   timeout: Number;
@@ -118,7 +117,10 @@ export async function assertionResult(req: Request) {
   const clientData: ClientDataJSON = JSON.parse(
     base64url.decode(req.body.response.clientDataJSON)
   );
-  const validateClientDataResult = assertionClientDataJSONValidater(req, clientData);
+  const validateClientDataResult = assertionClientDataJSONValidater(
+    req,
+    clientData
+  );
   if (validateClientDataResult.status === "failed") {
     return validateClientDataResult;
   }

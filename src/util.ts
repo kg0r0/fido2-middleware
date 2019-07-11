@@ -96,7 +96,10 @@ export function toArrayBuffer(buf: Buffer): ArrayBuffer {
  */
 export function isRequestBody(bodyObject: any): boolean {
   return (
-    bodyObject.id != null && bodyObject.rawId != null && bodyObject.response != null && bodyObject.type != null
+    bodyObject.id != null &&
+    bodyObject.rawId != null &&
+    bodyObject.response != null &&
+    bodyObject.type != null
   );
 }
 
@@ -119,7 +122,9 @@ export function preFormatAttestationResultReq(reqBody: RequestBody) {
  * @param {RequestBody} reqBody
  * @returns {RequestBody}
  */
-export function preFormatAssertionResultReq(reqBody: RequestBody): preFormatRequestBody {
+export function preFormatAssertionResultReq(
+  reqBody: RequestBody
+): preFormatRequestBody {
   if (reqBody.response.authenticatorData) {
     reqBody.response.authenticatorData = toArrayBuffer(
       base64url.toBuffer(reqBody.response.authenticatorData)

@@ -1,7 +1,15 @@
 import { describe, it } from "mocha";
 import { expect } from "chai";
 import base64url from "base64url";
-import { isBase64UrlEncoded, randomBase64URLBuffer, toArrayBuffer, preFormatAttestationResultReq, preFormatAssertionResultReq, isRequestBody, assertionClientDataJSONValidater } from "../src/util";
+import {
+  isBase64UrlEncoded,
+  randomBase64URLBuffer,
+  toArrayBuffer,
+  preFormatAttestationResultReq,
+  preFormatAssertionResultReq,
+  isRequestBody,
+  assertionClientDataJSONValidater
+} from "../src/util";
 import { mockReq } from "sinon-express-mock";
 
 describe("randomBase64URLBuffer()", () => {
@@ -24,12 +32,12 @@ describe("isBase64UrlEncoded()", () => {
 
 describe("toArrayBuffer()", () => {
   it("should return ArrayBuffer", () => {
-    const buf = Buffer.from("test")
+    const buf = Buffer.from("test");
     const arrayBuf = toArrayBuffer(buf);
     expect(Buffer.isBuffer(arrayBuf)).to.equal(false);
     expect(arrayBuf instanceof ArrayBuffer).to.equal(true);
-  })
-})
+  });
+});
 
 describe("preformatAttestationResultReq()", () => {
   const reqBody = {
@@ -37,13 +45,13 @@ describe("preformatAttestationResultReq()", () => {
     rawId: "test rawId",
     response: {},
     type: "test"
-  }
+  };
   it("should return ArrayBuffer", () => {
     const body = preFormatAttestationResultReq(reqBody);
     expect(body.id instanceof ArrayBuffer).to.equal(true);
     expect(body.rawId instanceof ArrayBuffer).to.equal(true);
-  })
-})
+  });
+});
 
 describe("preformatAssertionResultReq()", () => {
   const reqBody = {
@@ -51,12 +59,12 @@ describe("preformatAssertionResultReq()", () => {
     rawId: "test rawId",
     response: {},
     type: "test"
-  }
+  };
   it("should return ArrayBuffer", () => {
     const body = preFormatAssertionResultReq(reqBody);
     expect(body.id instanceof ArrayBuffer).to.equal(true);
     expect(body.rawId instanceof ArrayBuffer).to.equal(true);
-  })
+  });
 
   describe("isRequestBody()", () => {
     const body = {
@@ -64,17 +72,15 @@ describe("preformatAssertionResultReq()", () => {
       rawId: "rawId",
       response: {},
       type: "type"
-    }
+    };
     it("should return true", () => {
       expect(isRequestBody(body)).to.equal(true);
-    })
+    });
 
     it("should return false", () => {
       expect(isRequestBody({})).to.equal(false);
-    })
-
-
-  })
+    });
+  });
 
   describe("ClientDataJSONValidater()", () => {
     const request = {
@@ -93,59 +99,74 @@ describe("preformatAssertionResultReq()", () => {
         challenge: "challenge",
         origin: "https://localhost:3000",
         type: "webauthn.get",
-        tokenBinding: "",
-      }
-      const result = assertionClientDataJSONValidater(requestMock, clinetDataJSON)
+        tokenBinding: ""
+      };
+      const result = assertionClientDataJSONValidater(
+        requestMock,
+        clinetDataJSON
+      );
       expect(result.status).to.equal("ok");
       expect(result.errorMessage).to.equal("");
-    })
+    });
 
     it("should return 'Challenges don't match!'", () => {
       const clinetDataJSON = {
         challenge: "dummy",
         origin: "http://localhost:3000",
         type: "webauthn.get",
-        tokenBinding: "",
-      }
-      const result = assertionClientDataJSONValidater(requestMock, clinetDataJSON)
+        tokenBinding: ""
+      };
+      const result = assertionClientDataJSONValidater(
+        requestMock,
+        clinetDataJSON
+      );
       expect(result.status).to.equal("failed");
       expect(result.errorMessage).to.equal("Challenges don't match!");
-    })
+    });
 
     it("should return 'Origins don't match!'", () => {
       const clinetDataJSON = {
         challenge: "challenge",
         origin: "dummy",
         type: "webauthn.get",
-        tokenBinding: "",
-      }
-      const result = assertionClientDataJSONValidater(requestMock, clinetDataJSON)
+        tokenBinding: ""
+      };
+      const result = assertionClientDataJSONValidater(
+        requestMock,
+        clinetDataJSON
+      );
       expect(result.status).to.equal("failed");
       expect(result.errorMessage).to.equal("Origins don't match!");
-    })
+    });
 
     it("should return 'Type don't match!'", () => {
       const clinetDataJSON = {
         challenge: "challenge",
         origin: "https://localhost:3000",
         type: "webauthn.create",
-        tokenBinding: "",
-      }
-      const result = assertionClientDataJSONValidater(requestMock, clinetDataJSON)
+        tokenBinding: ""
+      };
+      const result = assertionClientDataJSONValidater(
+        requestMock,
+        clinetDataJSON
+      );
       expect(result.status).to.equal("failed");
       expect(result.errorMessage).to.equal("Type don't match!");
-    })
+    });
 
     it("should return 'Token Binding don`t support!'", () => {
       const clinetDataJSON = {
         challenge: "challenge",
         origin: "https://localhost:3000",
         type: "webauthn.get",
-        tokenBinding: "tokenBinding",
-      }
-      const result = assertionClientDataJSONValidater(requestMock, clinetDataJSON)
+        tokenBinding: "tokenBinding"
+      };
+      const result = assertionClientDataJSONValidater(
+        requestMock,
+        clinetDataJSON
+      );
       expect(result.status).to.equal("failed");
       expect(result.errorMessage).to.equal("Token Binding don`t support!");
-    })
-  })
-})
+    });
+  });
+});
