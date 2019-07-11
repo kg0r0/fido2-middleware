@@ -4,7 +4,8 @@ import {
   randomBase64URLBuffer,
   preFormatAssertionResultReq,
   isRequestBody,
-  assertionClientDataJSONValidater,
+  assertionResultReqValidator,
+  assertionClientDataJSONValidator,
   Fido2MiddleWareConfig,
   ClientDataJSON,
   AuthrInfo
@@ -49,12 +50,8 @@ function findAuthr(credID: String, authenticators: AuthrInfo[]) {
  * @returns {undefined}
  */
 export async function assertionOptions(req: Request) {
-  if (!req.body || !req.body.username) {
-    return {
-      status: "failed",
-      errorMessage: "Request missing username field!"
-    };
-  }
+  if (!req.body || !req.body.username)
+    throw new Error("Request missing username field!")
 
   const cacheData = await cache.getAsync(req.body.username);
   const authenticators = cacheData ? cacheData.authenticators : [];
@@ -93,37 +90,16 @@ export async function assertionOptions(req: Request) {
  * @returns {undefined}
  */
 export async function assertionResult(req: Request) {
-  if (!(req.body != null && isRequestBody(req.body))) {
-    return {
-      status: "failed",
-      errorMessage:
-        "Response missing one or more of id/rawId/response/type fields"
-    };
-  }
-
-  if (req.body.type !== "public-key") {
-    return {
-      status: "failed",
-      errorMessage: "type is not public-key!"
-    };
-  }
-  if (!isBase64UrlEncoded(req.body.id)) {
-    return {
-      status: "failed",
-      errorMessage: "Invalid id!"
-    };
-  }
+  assertionResultReqValidator(req.body);
 
   const clientData: ClientDataJSON = JSON.parse(
     base64url.decode(req.body.response.clientDataJSON)
   );
-  const validateClientDataResult = assertionClientDataJSONValidater(
+
+  assertionClientDataJSONValidator(
     req,
     clientData
   );
-  if (validateClientDataResult.status === "failed") {
-    return validateClientDataResult;
-  }
 
   let authenticators;
   if (req.session) {

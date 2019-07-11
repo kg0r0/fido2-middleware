@@ -20,7 +20,10 @@ describe("attestationOptions()", () => {
   it("should return failed status", async () => {
     const request = {};
     const requestMock = mockReq(request);
-    const options = await attestationOptions(requestMock);
-    expect(options.status).to.equal("failed");
+    try {
+      await attestationOptions(requestMock);
+    } catch (e) {
+      expect(e.message).to.equal("Request missing display name or username field!");
+    }
   });
 });

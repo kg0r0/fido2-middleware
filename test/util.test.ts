@@ -8,7 +8,7 @@ import {
   preFormatAttestationResultReq,
   preFormatAssertionResultReq,
   isRequestBody,
-  assertionClientDataJSONValidater
+  assertionClientDataJSONValidator
 } from "../src/util";
 import { mockReq } from "sinon-express-mock";
 
@@ -101,12 +101,11 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
+      const result = assertionClientDataJSONValidator(
         requestMock,
         clinetDataJSON
       );
-      expect(result.status).to.equal("ok");
-      expect(result.errorMessage).to.equal("");
+      expect(result).to.equal(true);
     });
 
     it("should return 'Challenges don't match!'", () => {
@@ -116,12 +115,14 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Challenges don't match!");
+      try {
+        assertionClientDataJSONValidator(
+          requestMock,
+          clinetDataJSON
+        );
+      } catch (e) {
+        expect(e.message).to.equal("Challenges don't match!");
+      }
     });
 
     it("should return 'Origins don't match!'", () => {
@@ -131,12 +132,14 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Origins don't match!");
+      try {
+        assertionClientDataJSONValidator(
+          requestMock,
+          clinetDataJSON
+        );
+      } catch (e) {
+        expect(e.message).to.equal("Origins don't match!");
+      }
     });
 
     it("should return 'Type don't match!'", () => {
@@ -146,12 +149,14 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.create",
         tokenBinding: ""
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Type don't match!");
+      try {
+        assertionClientDataJSONValidator(
+          requestMock,
+          clinetDataJSON
+        );
+      } catch (e) {
+        expect(e.message).to.equal("Type don't match!");
+      }
     });
 
     it("should return 'Token Binding don`t support!'", () => {
@@ -161,12 +166,14 @@ describe("preformatAssertionResultReq()", () => {
         type: "webauthn.get",
         tokenBinding: "tokenBinding"
       };
-      const result = assertionClientDataJSONValidater(
-        requestMock,
-        clinetDataJSON
-      );
-      expect(result.status).to.equal("failed");
-      expect(result.errorMessage).to.equal("Token Binding don`t support!");
+      try {
+        assertionClientDataJSONValidator(
+          requestMock,
+          clinetDataJSON
+        );
+      } catch (e) {
+        expect(e.message).to.equal("Token Binding don`t support!");
+      }
     });
   });
 });

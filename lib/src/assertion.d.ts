@@ -13,10 +13,7 @@ interface AssertionOptions {
  * @param {Object} req - Express request object
  * @returns {undefined}
  */
-export declare function assertionOptions(req: Request): Promise<AssertionOptions | {
-    status: string;
-    errorMessage: string;
-}>;
+export declare function assertionOptions(req: Request): Promise<AssertionOptions>;
 /**
  *
  * @param {Object} req - Express request object

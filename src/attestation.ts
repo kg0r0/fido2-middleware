@@ -50,12 +50,8 @@ interface AttestationExpected {
  * @returns {undefined}
  */
 export async function attestationOptions(req: Request) {
-  if (!req.body || !req.body.username || !req.body.displayName) {
-    return {
-      status: "failed",
-      errorMessage: "Request missing display name or username field!"
-    };
-  }
+  if (!req.body || !req.body.username || !req.body.displayName)
+     throw new Error("Request missing display name or username field!")
 
   let excludeCredentials;
   if (!fido2MiddlewareConfig.db) {
@@ -116,27 +112,14 @@ export async function attestationOptions(req: Request) {
  * @returns {undefined}
  */
 export async function attestationResult(req: Request) {
-  if (!(req.body != null && isRequestBody(req.body))) {
-    return {
-      status: "failed",
-      errorMessage:
-        "Response missing one or more of id/rawId/response/type fields"
-    };
-  }
+  if (!(req.body != null && isRequestBody(req.body)))
+      throw new Error("Response missing one or more of id/rawId/response/type fields")
 
-  if (req.body.type !== "public-key") {
-    return {
-      status: "failed",
-      errorMessage: "type is not public-key!"
-    };
-  }
+  if (req.body.type !== "public-key")
+      throw new Error("type is not public-key!")
 
-  if (!isBase64UrlEncoded(req.body.id)) {
-    return {
-      status: "failed",
-      errorMessage: "Invalid id!"
-    };
-  }
+  if (!isBase64UrlEncoded(req.body.id))
+      throw new Error("Invalid id!")
 
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AttestationExpected = {
