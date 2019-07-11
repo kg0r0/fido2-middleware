@@ -9,6 +9,7 @@ import {
   preFormatAssertionResultReq,
   isRequestBody,
   assertionClientDataJSONValidator,
+  attestationResultReqValidator,
   assertionResultReqValidator
 } from "../src/util";
 import { mockReq } from "sinon-express-mock";
@@ -178,8 +179,60 @@ describe("preformatAssertionResultReq()", () => {
     });
   });
 
+  describe("attestationResultReqValidator()", () => {
+    it("should return true", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      expect(attestationResultReqValidator(body)).to.equal(true)
+    })
+
+    it("should return 'Response missing one or more of id/rawId/response/type fields'", () => {
+      const body = {};
+      try {
+        attestationResultReqValidator(body);
+      } catch(e) {
+        expect(e.message).to.equal("Response missing one or more of id/rawId/response/type fields");
+      }
+    })
+
+    it("should return 'type is not public-key!'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "type"
+      };
+      try {
+        attestationResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("type is not public-key!");
+      }
+    })
+
+    it("should return 'Invalid id!'", () => {
+      const body = {
+        id: "+/=",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      try {
+        attestationResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("Invalid id!");
+      }
+    })
+
+
+
+  })
+
   describe("assertionResultReqValidator()", () => {
-    it("should return 'Signature is not base64url encoded'", () => {
+    it("should return true", () => {
       const body = {
         id: "id",
         rawId: "rawId",
