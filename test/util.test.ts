@@ -8,7 +8,8 @@ import {
   preFormatAttestationResultReq,
   preFormatAssertionResultReq,
   isRequestBody,
-  assertionClientDataJSONValidator
+  assertionClientDataJSONValidator,
+  assertionResultReqValidator
 } from "../src/util";
 import { mockReq } from "sinon-express-mock";
 
@@ -176,4 +177,123 @@ describe("preformatAssertionResultReq()", () => {
       }
     });
   });
+
+  describe("assertionResultReqValidator()", () => {
+    it("should return 'Signature is not base64url encoded'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "authenticatorData",
+          userHandle: "userHandle",
+          signature: "signature"
+        },
+        type: "public-key"
+      };
+        expect(assertionResultReqValidator(body)).to.equal(true);
+    })
+
+    it("should return 'Response missing one or more of id/rawId/response/type fields'", () => {
+      const body = {}
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("Response missing one or more of id/rawId/response/type fields");
+      }
+    })
+
+    it("should return 'type is not public-key!'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "type"
+      };
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("type is not public-key!");
+      }
+    })
+
+    it("should return 'Invalid id!'", () => {
+      const body = {
+        id: "+/=",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("Invalid id!");
+      }
+    })
+
+    it("should return 'AuthenticatorData is missing'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {},
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("AuthenticatorData is missing");
+      }
+    })
+
+    it("should return 'AuthenticatorData is not base64url encoded'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "+/="
+        },
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("AuthenticatorData is not base64url encoded");
+      }
+    })
+
+    it("should return 'userHandle is not of type DOMString'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "authenticatorData",
+          userHandle: 100,
+        },
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("userHandle is not of type DOMString");
+      }
+    })
+
+    it("should return 'Signature is not base64url encoded'", () => {
+      const body = {
+        id: "id",
+        rawId: "rawId",
+        response: {
+          authenticatorData: "authenticatorData",
+          userHandle: "userHandle",
+          signature: "+/="
+        },
+        type: "public-key"
+      };
+      try {
+        assertionResultReqValidator(body)
+      } catch (e) {
+        expect(e.message).to.equal("Signature is not base64url encoded");
+      }
+    })
+
+  })
 });
