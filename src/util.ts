@@ -1,12 +1,44 @@
 import crypto from "crypto";
+import { Request } from "express";
 import base64url from "base64url";
+import config from "config";
+const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
+  "fido2-middlewareConfig"
+);
 const str2ab = require("string-to-arraybuffer");
+
+interface Fido2MiddleWareConfig {
+  db: any;
+  factor: String;
+  fido2lib: {
+    timeout: Number;
+    rpId: String;
+    challengeSize: Number;
+  };
+  origin: String;
+  attestationOptionsPath: String;
+  attestationResultPath: String;
+  assertionOptionsPath: String;
+  assertionResultPath: String;
+  cookie: {
+    name: string;
+    maxAge: number;
+    httpOnly: boolean;
+  };
+}
 
 interface RequestBody {
   id: Number;
   rawId: String;
   response: any;
   type: String;
+}
+
+interface ClientDataJSON {
+  challenge: String;
+  origin: String;
+  type: String;
+  tokenBinding: String;
 }
 
 /**
@@ -54,6 +86,11 @@ export function isRequestBody(bodyObject: any): boolean {
   );
 }
 
+/**
+ *
+ * @param {RequestBody} reqBody
+ * @returns {RequestBody}
+ */
 export function preFormatResultReq(reqBody: RequestBody): RequestBody {
   if (reqBody.response.authenticatorData) {
     reqBody.response.authenticatorData = toArrayBuffer(
@@ -63,4 +100,46 @@ export function preFormatResultReq(reqBody: RequestBody): RequestBody {
   reqBody.id = str2ab(reqBody.id);
   reqBody.rawId = str2ab(reqBody.rawId);
   return reqBody;
+}
+
+/**
+ *
+ * @param req
+ * @param clientDataJSON
+ * @param {Object}
+ */
+export function clientDataJSONValidater(
+  req: Request,
+  clientDataJSON: ClientDataJSON
+) {
+  if (req.session && clientDataJSON.challenge !== req.session.challenge) {
+    return {
+      status: "failed",
+      errorMessage: "Challenges don't match!"
+    };
+  }
+  if (clientDataJSON.origin !== fido2MiddlewareConfig.origin) {
+    return {
+      status: "failed",
+      errorMessage: "Origins don't match!"
+    };
+  }
+
+  if (clientDataJSON.type !== "webauthn.get") {
+    return {
+      status: "failed",
+      errorMessage: "Type don't match!"
+    };
+  }
+
+  if (clientDataJSON.tokenBinding) {
+    return {
+      status: "failed",
+      errorMessage: "Token Binding don`t support!"
+    };
+  }
+  return {
+    status: "ok",
+    errorMessage: ""
+  };
 }

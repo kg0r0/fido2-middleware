@@ -3,7 +3,8 @@ import {
   isBase64UrlEncoded,
   randomBase64URLBuffer,
   preFormatResultReq,
-  isRequestBody
+  isRequestBody,
+  clientDataJSONValidater
 } from "./util";
 import config from "config";
 import base64url from "base64url";
@@ -142,33 +143,9 @@ export async function assertionResult(req: Request) {
   const clientData: ClientDataJSON = JSON.parse(
     base64url.decode(req.body.response.clientDataJSON)
   );
-
-  if (req.session && clientData.challenge !== req.session.challenge) {
-    return {
-      status: "failed",
-      errorMessage: "Challenges don't match!"
-    };
-  }
-
-  if (clientData.origin !== fido2MiddlewareConfig.origin) {
-    return {
-      status: "failed",
-      errorMessage: "Origins don't match!"
-    };
-  }
-
-  if (clientData.type !== "webauthn.get") {
-    return {
-      status: "failed",
-      errorMessage: "Type don't match!"
-    };
-  }
-
-  if (clientData.tokenBinding) {
-    return {
-      status: "failed",
-      errorMessage: "Token Binding don`t support!"
-    };
+  const validateClientDataResult = clientDataJSONValidater(req, clientData);
+  if (validateClientDataResult.status === "failed") {
+    return validateClientDataResult;
   }
 
   let authenticators;
