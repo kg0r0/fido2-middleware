@@ -5,7 +5,8 @@ import {
   preFormatAttestationResultReq,
   isRequestBody,
   Fido2MiddleWareConfig,
-  AuthrInfo
+  AuthrInfo,
+  attestationResultReqValidator
 } from "./util";
 import config from "config";
 import base64url from "base64url";
@@ -112,15 +113,7 @@ export async function attestationOptions(req: Request) {
  * @returns {undefined}
  */
 export async function attestationResult(req: Request) {
-  if (!(req.body != null && isRequestBody(req.body)))
-      throw new Error("Response missing one or more of id/rawId/response/type fields")
-
-  if (req.body.type !== "public-key")
-      throw new Error("type is not public-key!")
-
-  if (!isBase64UrlEncoded(req.body.id))
-      throw new Error("Invalid id!")
-
+  attestationResultReqValidator(req.body)
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AttestationExpected = {
     challenge: req.session ? req.session.challenge : "",

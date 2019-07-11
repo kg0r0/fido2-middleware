@@ -91,6 +91,7 @@ export declare function preFormatAssertionResultReq(reqBody: RequestBody): preFo
  * @param {}
  */
 export declare function assertionClientDataJSONValidator(req: Request, clientDataJSON: ClientDataJSON): boolean;
+export declare function attestationResultReqValidator(body: any): boolean;
 /**
  *
  * @param body

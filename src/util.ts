@@ -163,6 +163,19 @@ export function assertionClientDataJSONValidator(
   return true;
 }
 
+export function attestationResultReqValidator(body: any): boolean {
+  if (!(body != null && isRequestBody(body)))
+      throw new Error("Response missing one or more of id/rawId/response/type fields")
+
+  if (body.type !== "public-key")
+      throw new Error("type is not public-key!")
+
+  if (!isBase64UrlEncoded(body.id))
+      throw new Error("Invalid id!")
+
+  return true;
+}
+
 /**
  * 
  * @param body 
