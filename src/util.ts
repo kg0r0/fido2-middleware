@@ -1,12 +1,58 @@
 import crypto from "crypto";
+import { Request } from "express";
 import base64url from "base64url";
+import config from "config";
+const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
+  "fido2-middlewareConfig"
+);
 const str2ab = require("string-to-arraybuffer");
 
+export interface Fido2MiddleWareConfig {
+  db: any;
+  factor: String;
+  fido2lib: {
+    timeout: Number;
+    rpId: String;
+    challengeSize: Number;
+  };
+  origin: String;
+  attestationOptionsPath: String;
+  attestationResultPath: String;
+  assertionOptionsPath: String;
+  assertionResultPath: String;
+  cookie: {
+    name: string;
+    maxAge: number;
+    httpOnly: boolean;
+  };
+}
+
 interface RequestBody {
-  id: Number;
+  id: String;
   rawId: String;
   response: any;
   type: String;
+}
+
+interface preFormatRequestBody {
+  id: ArrayBuffer;
+  rawId: ArrayBuffer;
+  response: any;
+  type: String;
+}
+
+export interface ClientDataJSON {
+  challenge: String;
+  origin: String;
+  type: String;
+  tokenBinding: String;
+}
+
+export interface AuthrInfo {
+  fmt: String;
+  publicKey: String;
+  counter: Number;
+  credID: String;
 }
 
 /**
@@ -50,17 +96,86 @@ export function toArrayBuffer(buf: Buffer): ArrayBuffer {
  */
 export function isRequestBody(bodyObject: any): boolean {
   return (
-    bodyObject.id && bodyObject.rawId && bodyObject.response && bodyObject.type
+    bodyObject.id != null &&
+    bodyObject.rawId != null &&
+    bodyObject.response != null &&
+    bodyObject.type != null
   );
 }
 
-export function preFormatResultReq(reqBody: RequestBody): RequestBody {
+/**
+ *
+ * @param {RequestBody} reqBody
+ * @returns {RequestBody}
+ */
+export function preFormatAttestationResultReq(reqBody: RequestBody) {
+  return {
+    id: str2ab(reqBody.id),
+    rawId: str2ab(reqBody.rawId),
+    response: reqBody.response,
+    type: reqBody.type
+  };
+}
+
+/**
+ *
+ * @param {RequestBody} reqBody
+ * @returns {RequestBody}
+ */
+export function preFormatAssertionResultReq(
+  reqBody: RequestBody
+): preFormatRequestBody {
   if (reqBody.response.authenticatorData) {
     reqBody.response.authenticatorData = toArrayBuffer(
       base64url.toBuffer(reqBody.response.authenticatorData)
     );
   }
-  reqBody.id = str2ab(reqBody.id);
-  reqBody.rawId = str2ab(reqBody.rawId);
-  return reqBody;
+  return {
+    id: str2ab(reqBody.id),
+    rawId: str2ab(reqBody.rawId),
+    response: reqBody.response,
+    type: reqBody.type
+  };
+}
+
+/**
+ *
+ * @param req
+ * @param clientDataJSON
+ * @param {Object}
+ */
+export function assertionClientDataJSONValidater(
+  req: Request,
+  clientDataJSON: ClientDataJSON
+) {
+  if (req.session && clientDataJSON.challenge !== req.session.challenge) {
+    return {
+      status: "failed",
+      errorMessage: "Challenges don't match!"
+    };
+  }
+  if (clientDataJSON.origin !== fido2MiddlewareConfig.origin) {
+    return {
+      status: "failed",
+      errorMessage: "Origins don't match!"
+    };
+  }
+
+  if (clientDataJSON.type !== "webauthn.get") {
+    return {
+      status: "failed",
+      errorMessage: "Type don't match!"
+    };
+  }
+
+  if (clientDataJSON.tokenBinding) {
+    return {
+      status: "failed",
+      errorMessage: "Token Binding don`t support!"
+    };
+  }
+  return {
+    status: "ok",
+    errorMessage: ""
+  };
 }

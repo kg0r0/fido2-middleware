@@ -1,9 +1,47 @@
 /// <reference types="node" />
+import { Request } from "express";
+export interface Fido2MiddleWareConfig {
+    db: any;
+    factor: String;
+    fido2lib: {
+        timeout: Number;
+        rpId: String;
+        challengeSize: Number;
+    };
+    origin: String;
+    attestationOptionsPath: String;
+    attestationResultPath: String;
+    assertionOptionsPath: String;
+    assertionResultPath: String;
+    cookie: {
+        name: string;
+        maxAge: number;
+        httpOnly: boolean;
+    };
+}
 interface RequestBody {
-    id: Number;
+    id: String;
     rawId: String;
     response: any;
     type: String;
+}
+interface preFormatRequestBody {
+    id: ArrayBuffer;
+    rawId: ArrayBuffer;
+    response: any;
+    type: String;
+}
+export interface ClientDataJSON {
+    challenge: String;
+    origin: String;
+    type: String;
+    tokenBinding: String;
+}
+export interface AuthrInfo {
+    fmt: String;
+    publicKey: String;
+    counter: Number;
+    credID: String;
 }
 /**
  *
@@ -29,5 +67,31 @@ export declare function toArrayBuffer(buf: Buffer): ArrayBuffer;
  * @returns {Boolean}
  */
 export declare function isRequestBody(bodyObject: any): boolean;
-export declare function preFormatResultReq(reqBody: RequestBody): RequestBody;
+/**
+ *
+ * @param {RequestBody} reqBody
+ * @returns {RequestBody}
+ */
+export declare function preFormatAttestationResultReq(reqBody: RequestBody): {
+    id: any;
+    rawId: any;
+    response: any;
+    type: String;
+};
+/**
+ *
+ * @param {RequestBody} reqBody
+ * @returns {RequestBody}
+ */
+export declare function preFormatAssertionResultReq(reqBody: RequestBody): preFormatRequestBody;
+/**
+ *
+ * @param req
+ * @param clientDataJSON
+ * @param {Object}
+ */
+export declare function assertionClientDataJSONValidater(req: Request, clientDataJSON: ClientDataJSON): {
+    status: string;
+    errorMessage: string;
+};
 export {};
