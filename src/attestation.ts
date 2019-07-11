@@ -2,8 +2,10 @@ import { Request } from "express";
 import {
   isBase64UrlEncoded,
   randomBase64URLBuffer,
-  preFormatResultReq,
-  isRequestBody
+  preFormatAttestationResultReq,
+  isRequestBody,
+  Fido2MiddleWareConfig,
+  AuthrInfo
 } from "./util";
 import config from "config";
 import base64url from "base64url";
@@ -12,38 +14,12 @@ const cache = require("./cache");
 const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
   "fido2-middlewareConfig"
 );
-interface Fido2MiddleWareConfig {
-  db: any;
-  factor: String;
-  fido2lib: {
-    timeout: Number;
-    rpId: String;
-    challengeSize: Number;
-  };
-  origin: String;
-  cookie: {
-    name: string;
-    maxAge: number;
-    httpOnly: boolean;
-  };
-}
 
 interface RequestBody {
-  id: Number;
+  id: String;
   rawId: String;
   response: any;
   type: String;
-}
-
-interface ResponseBody {
-  status: String;
-  errorMessage: String | unknown;
-}
-interface AuthrInfo {
-  fmt: String;
-  publicKey: String;
-  counter: Number;
-  credID: String;
 }
 
 interface AttestationOptions {
@@ -168,7 +144,7 @@ export async function attestationResult(req: Request) {
     origin: fido2MiddlewareConfig.origin || "localhost",
     factor: fido2MiddlewareConfig.factor || "either"
   };
-  const requestBody: RequestBody = preFormatResultReq(req.body);
+  const requestBody: RequestBody = preFormatAttestationResultReq(req.body);
   const result = await fido2Lib
     .attestationResult(requestBody, expected)
     .catch((err: Error) => {

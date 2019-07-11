@@ -26,6 +26,12 @@ describe("attestationOptions()", () => {
 
   app.use("/", index.webAuthentication);
 
+  it("should return 404", done => {
+    request(app)
+      .post("/")
+      .expect(404, done);
+  });
+
   it("should return ok status", done => {
     request(app)
       .post("/attestation/options")

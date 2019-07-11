@@ -2,9 +2,12 @@ import { Request } from "express";
 import {
   isBase64UrlEncoded,
   randomBase64URLBuffer,
-  preFormatResultReq,
+  preFormatAssertionResultReq,
   isRequestBody,
-  clientDataJSONValidater
+  assertionClientDataJSONValidater,
+  Fido2MiddleWareConfig,
+  ClientDataJSON,
+  AuthrInfo
 } from "./util";
 import config from "config";
 import base64url from "base64url";
@@ -13,28 +16,7 @@ const cache = require("./cache");
 const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
   "fido2-middlewareConfig"
 );
-interface Fido2MiddleWareConfig {
-  db: any;
-  factor: String;
-  fido2lib: {
-    timeout: Number;
-    rpId: String;
-    challengeSize: Number;
-  };
-  origin: String;
-  cookie: {
-    name: string;
-    maxAge: number;
-    httpOnly: boolean;
-  };
-}
 
-interface AuthrInfo {
-  fmt: String;
-  publicKey: String;
-  counter: Number;
-  credID: String;
-}
 
 interface AssertionOptions {
   challenge: String;
@@ -44,13 +26,6 @@ interface AssertionOptions {
   errorMessage: String;
   extensions: any;
   userVerification: String;
-}
-
-interface ClientDataJSON {
-  challenge: String;
-  origin: String;
-  type: String;
-  tokenBinding: String;
 }
 
 interface AssertionExpected {
@@ -143,7 +118,7 @@ export async function assertionResult(req: Request) {
   const clientData: ClientDataJSON = JSON.parse(
     base64url.decode(req.body.response.clientDataJSON)
   );
-  const validateClientDataResult = clientDataJSONValidater(req, clientData);
+  const validateClientDataResult = assertionClientDataJSONValidater(req, clientData);
   if (validateClientDataResult.status === "failed") {
     return validateClientDataResult;
   }
@@ -165,7 +140,7 @@ export async function assertionResult(req: Request) {
     prevCounter: authr.counter,
     userHandle: null
   };
-  const requestBody = preFormatResultReq(req.body);
+  const requestBody = preFormatAssertionResultReq(req.body);
   await fido2Lib.assertionResult(requestBody, expected).catch((err: Error) => {
     return {
       status: "failed",
