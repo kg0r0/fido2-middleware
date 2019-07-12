@@ -20,11 +20,6 @@ export interface Fido2MiddleWareConfig {
   attestationResultPath: String;
   assertionOptionsPath: String;
   assertionResultPath: String;
-  cookie: {
-    name: string;
-    maxAge: number;
-    httpOnly: boolean;
-  };
 }
 
 interface RequestBody {
