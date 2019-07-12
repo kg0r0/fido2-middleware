@@ -7,7 +7,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
-const fido2middleware = require('fido2middleware');
+const fido2middleware = require('fido2-middleware');
+const crypto = require('crypto');
 const app = express();
 
 app.use(cookieParser());
