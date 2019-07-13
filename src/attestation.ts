@@ -88,7 +88,7 @@ export async function attestationOptions(req: Request) {
     challenge: randomBase64URLBuffer(32),
     pubKeyCredParams: result.pubKeyCredParams,
     timeout: result.timeout,
-    attestation: result.attestation,
+    attestation: req.body.attestation || result.attestation,
     status: "ok",
     errorMessage: "",
     extensions: req.body.extensions,
