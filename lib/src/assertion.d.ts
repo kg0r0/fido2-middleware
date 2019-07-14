@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { AuthrInfo } from "./util";
 interface AssertionOptions {
     challenge: String;
     timeout: Number;
@@ -8,6 +9,7 @@ interface AssertionOptions {
     extensions: any;
     userVerification: String;
 }
+export declare function findAuthr(credID: String, authenticators: AuthrInfo[]): AuthrInfo;
 /**
  *
  * @param {Object} req - Express request object

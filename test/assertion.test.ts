@@ -30,45 +30,49 @@ describe("assertionOptions()", () => {
 describe("findAuhtr()", () => {
   it("should return authr", () => {
     const credID = "credID";
-    const authenticators = [{
-      fmt: "packed",
-      publicKey: "publicKey",
-      counter: 100,
-      credID: "credID"
-    }, {
-      fmt: "dummy",
-      publicKey: "dummy",
-      counter: 0,
-      credID: "dummy"
-    }]
+    const authenticators = [
+      {
+        fmt: "packed",
+        publicKey: "publicKey",
+        counter: 100,
+        credID: "credID"
+      },
+      {
+        fmt: "dummy",
+        publicKey: "dummy",
+        counter: 0,
+        credID: "dummy"
+      }
+    ];
     const authr = findAuthr(credID, authenticators);
     expect(authr.fmt).to.equal("packed");
     expect(authr.publicKey).to.equal("publicKey");
     expect(authr.counter).to.equal(100);
     expect(authr.credID).to.equal(credID);
-  })
+  });
 
   it("should return 'Error'", () => {
     const credID = "test";
-    const authenticators = [{
-      fmt: "packed",
-      publicKey: "publicKey",
-      counter: 100,
-      credID: "credID"
-    }, {
-      fmt: "dummy",
-      publicKey: "dummy",
-      counter: 0,
-      credID: "dummy"
-    }]
-    let authr
+    const authenticators = [
+      {
+        fmt: "packed",
+        publicKey: "publicKey",
+        counter: 100,
+        credID: "credID"
+      },
+      {
+        fmt: "dummy",
+        publicKey: "dummy",
+        counter: 0,
+        credID: "dummy"
+      }
+    ];
+    let authr;
     try {
       authr = findAuthr(credID, authenticators);
     } catch (e) {
       expect(e.message).to.equal(`Unknown authenticator with credID ${credID}`);
     }
     expect(authr).to.equal(undefined);
-  })
-
-
-})
+  });
+});
