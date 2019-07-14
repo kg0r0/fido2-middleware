@@ -35,7 +35,7 @@ interface AssertionExpected {
   userHandle: String | null;
 }
 
-function findAuthr(credID: String, authenticators: AuthrInfo[]) {
+export function findAuthr(credID: String, authenticators: AuthrInfo[]) {
   for (let authr of authenticators) {
     if (authr.credID === credID) return authr;
   }
