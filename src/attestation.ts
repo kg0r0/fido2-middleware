@@ -119,14 +119,7 @@ export async function attestationResult(req: Request) {
     factor: fido2MiddlewareConfig.factor || "either"
   };
   const requestBody: RequestBody = preFormatAttestationResultReq(req.body);
-  const result = await fido2Lib
-    .attestationResult(requestBody, expected)
-    .catch((err: Error) => {
-      return {
-        status: "failed",
-        errorMessage: err.message
-      };
-    });
+  const result = await fido2Lib.attestationResult(requestBody, expected);
 
   const authrInfo: AuthrInfo = {
     fmt: result.authnrData.get("fmt"),
