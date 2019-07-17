@@ -115,8 +115,8 @@ export async function attestationResult(req: Request) {
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AttestationExpected = {
     challenge: req.session ? req.session.challenge : "",
-    origin: fido2MiddlewareConfig.origin || "localhost",
-    factor: fido2MiddlewareConfig.factor || "either"
+    origin: fido2MiddlewareConfig.origin,
+    factor: fido2MiddlewareConfig.factor
   };
   const requestBody: RequestBody = preFormatAttestationResultReq(req.body);
   const result = await fido2Lib.attestationResult(requestBody, expected);

@@ -107,8 +107,8 @@ export async function assertionResult(req: Request) {
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AssertionExpected = {
     challenge: clientData.challenge,
-    origin: fido2MiddlewareConfig.origin || "localhost",
-    factor: fido2MiddlewareConfig.factor || "either",
+    origin: fido2MiddlewareConfig.origin,
+    factor: fido2MiddlewareConfig.factor,
     publicKey: authr.publicKey,
     prevCounter: authr.counter,
     userHandle: null
