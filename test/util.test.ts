@@ -62,8 +62,7 @@ describe("preformatAssertionResultReq()", () => {
     rawId:
       "LFdoCFJTyB82ZzSJUHc-c72yraRc_1mPvGX8ToE8su39xX26Jcqd31LUkKOS36FIAWgWl6itMKqmDvruha6ywA",
     response: {
-      authenticatorData:
-        "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAAAA",
+      authenticatorData: "SZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2MBAAAAAA",
       signature:
         "MEYCIQCv7EqsBRtf2E4o_BjzZfBwNpP8fLjd5y6TUOLWt5l9DQIhANiYig9newAJZYTzG1i5lwP-YQk9uXFnnDaHnr2yCKXL",
       userHandle: "",
@@ -71,12 +70,14 @@ describe("preformatAssertionResultReq()", () => {
         "eyJjaGFsbGVuZ2UiOiJ4ZGowQ0JmWDY5MnFzQVRweTBrTmM4NTMzSmR2ZExVcHFZUDh3RFRYX1pFIiwiY2xpZW50RXh0ZW5zaW9ucyI6e30sImhhc2hBbGdvcml0aG0iOiJTSEEtMjU2Iiwib3JpZ2luIjoiaHR0cDovL2xvY2FsaG9zdDozMDAwIiwidHlwZSI6IndlYmF1dGhuLmdldCJ9"
     },
     type: "public-key"
-  }
+  };
   it("should return ArrayBuffer", () => {
     const body = preFormatAssertionResultReq(reqBody);
     expect(body.id instanceof ArrayBuffer).to.equal(true);
     expect(body.rawId instanceof ArrayBuffer).to.equal(true);
-    expect(body.response.authenticatorData instanceof ArrayBuffer).to.equal(true);
+    expect(body.response.authenticatorData instanceof ArrayBuffer).to.equal(
+      true
+    );
   });
 });
 
@@ -310,9 +311,7 @@ describe("assertionResultReqValidator()", () => {
     try {
       assertionResultReqValidator(body);
     } catch (e) {
-      expect(e.message).to.equal(
-        "AuthenticatorData is not base64url encoded"
-      );
+      expect(e.message).to.equal("AuthenticatorData is not base64url encoded");
     }
   });
 
