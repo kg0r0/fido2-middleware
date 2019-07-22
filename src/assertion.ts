@@ -114,7 +114,7 @@ export async function assertionResult(req: Request) {
     userHandle: null
   };
   const requestBody = preFormatAssertionResultReq(req.body);
-  await fido2Lib.assertionResult(requestBody, expected).catch((err: Error) => {
+  const result = await fido2Lib.assertionResult(requestBody, expected).catch((err: Error) => {
     return {
       status: "failed",
       errorMessage: err.message
@@ -125,7 +125,7 @@ export async function assertionResult(req: Request) {
     req.session.loggedIn = true;
   }
 
-  return {
+  return result || {
     status: "ok",
     errorMessage: ""
   };

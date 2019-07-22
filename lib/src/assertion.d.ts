@@ -23,8 +23,5 @@ export declare function assertionOptions(req: Request): Promise<AssertionOptions
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export declare function assertionResult(req: Request): Promise<{
-    status: string;
-    errorMessage: string;
-}>;
+export declare function assertionResult(req: Request): Promise<any>;
 export {};
