@@ -123,7 +123,7 @@ export async function assertionResult(req: Request) {
       };
     });
 
-  if (req.session) {
+  if (req.session && !result.status) {
     req.session.loggedIn = true;
   }
 
