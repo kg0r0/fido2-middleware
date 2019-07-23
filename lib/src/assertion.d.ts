@@ -24,7 +24,7 @@ export declare function assertionOptions(req: Request): Promise<AssertionOptions
  * @returns {undefined}
  */
 export declare function assertionResult(req: Request): Promise<{
-    status: string;
-    errorMessage: string;
+    status: any;
+    errorMessage: any;
 }>;
 export {};

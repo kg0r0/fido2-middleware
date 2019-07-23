@@ -111,22 +111,24 @@ export async function assertionResult(req: Request) {
     factor: fido2MiddlewareConfig.factor,
     publicKey: authr.publicKey,
     prevCounter: authr.counter,
-    userHandle: null
+    userHandle: req.body.response.userHandle || null
   };
   const requestBody = preFormatAssertionResultReq(req.body);
-  await fido2Lib.assertionResult(requestBody, expected).catch((err: Error) => {
-    return {
-      status: "failed",
-      errorMessage: err.message
-    };
-  });
+  const result = await fido2Lib
+    .assertionResult(requestBody, expected)
+    .catch((err: Error) => {
+      return {
+        status: "failed",
+        errorMessage: err.message
+      };
+    });
 
-  if (req.session) {
+  if (req.session && !result.status) {
     req.session.loggedIn = true;
   }
 
   return {
-    status: "ok",
-    errorMessage: ""
+    status: result.status || "ok",
+    errorMessage: result.errorMessage || ""
   };
 }
