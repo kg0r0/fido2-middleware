@@ -97,9 +97,11 @@ export async function assertionResult(req: Request) {
   assertionClientDataJSONValidator(req, clientData);
 
   let authenticators;
+  let factor;
   if (req.session) {
     const cacheData = await cache.getAsync(req.session.username);
     authenticators = cacheData.authenticators;
+    factor = req.session.userVerification === "required" ? "first" : "either";
   }
 
   const authr = findAuthr(req.body.id, authenticators);
@@ -108,7 +110,7 @@ export async function assertionResult(req: Request) {
   const expected: AssertionExpected = {
     challenge: clientData.challenge,
     origin: fido2MiddlewareConfig.origin,
-    factor: fido2MiddlewareConfig.factor,
+    factor: factor || fido2MiddlewareConfig.factor,
     publicKey: authr.publicKey,
     prevCounter: authr.counter,
     userHandle: req.body.response.userHandle || null
