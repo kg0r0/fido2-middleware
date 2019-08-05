@@ -1,7 +1,7 @@
 {
   "name": "fido2-middleware",
-  "version": "0.0.1",
-  "description": "Parse FIDO2 request",
+  "version": "0.0.2",
+  "description": ":key: A middleware implementation of fido2 for Express",
   "main": "lib/src/index.js",
   "types": "lib/src/index",
   "directories": {
@@ -20,6 +20,10 @@
     "url": "git+https://github.com/kg0r0/fido2-middleware.git"
   },
   "keywords": [
+    "webauthn",
+    "fido2",
+    "express",
+    "typescript",
     "middleware"
   ],
   "author": "Kento Goro",
