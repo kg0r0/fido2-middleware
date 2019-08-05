@@ -1,6 +1,11 @@
 # fido2-middleware
 [![Build Status](https://travis-ci.com/kg0r0/fido2-middleware.svg?token=qYr2zD9yqpiRzB1bAgCq&branch=master)](https://travis-ci.com/kg0r0/fido2-middleware) [![Coverage Status](https://coveralls.io/repos/github/kg0r0/fido2-middleware/badge.svg?branch=master)](https://coveralls.io/github/kg0r0/fido2-middleware?branch=master) [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
 
+## Install
+```
+$ npm i fido2-middleware
+```
+
 ## Usage 
 ```js
 const express = require('express');
@@ -19,6 +24,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 app.use(fido2middleware.webAuthentication);
+
+
 ```
 
 ## Example
