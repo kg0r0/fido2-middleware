@@ -1,5 +1,10 @@
 # fido2-middleware
-[![Build Status](https://travis-ci.com/kg0r0/fido2-middleware.svg?token=qYr2zD9yqpiRzB1bAgCq&branch=master)](https://travis-ci.com/kg0r0/fido2-middleware) [![Coverage Status](https://coveralls.io/repos/github/kg0r0/fido2-middleware/badge.svg?branch=master)](https://coveralls.io/github/kg0r0/fido2-middleware?branch=master) [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors)
+[![Build Status](https://travis-ci.com/kg0r0/fido2-middleware.svg?token=qYr2zD9yqpiRzB1bAgCq&branch=master)](https://travis-ci.com/kg0r0/fido2-middleware) [![Coverage Status](https://coveralls.io/repos/github/kg0r0/fido2-middleware/badge.svg?branch=master)](https://coveralls.io/github/kg0r0/fido2-middleware?branch=master) [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors) [![npm version](https://badge.fury.io/js/fido2-middleware.svg)](https://badge.fury.io/js/fido2-middleware) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+## Install
+```
+$ npm i fido2-middleware
+```
 
 ## Usage 
 ```js
@@ -19,6 +24,8 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000
 }));
 app.use(fido2middleware.webAuthentication);
+
+
 ```
 
 ## Example
