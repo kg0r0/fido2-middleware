@@ -22,8 +22,8 @@ interface RequestBody {
 }
 
 interface AttestationOptions {
-  rp: any;
-  user: any;
+  rp: rp;
+  user: user;
   challenge: String;
   pubKeyCredParams: Object[];
   timeout: Number;
@@ -39,6 +39,17 @@ interface AttestationExpected {
   challenge: String;
   origin: String;
   factor: String;
+}
+
+interface rp {
+  name: String;
+  id: String | unknown;
+}
+
+interface user {
+  id: String;
+  name: String;
+  dispalyName: String;
 }
 
 /**
