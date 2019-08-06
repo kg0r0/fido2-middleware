@@ -1,7 +1,7 @@
 import { Request } from "express";
 interface AttestationOptions {
     rp: rp;
-    user: any;
+    user: user;
     challenge: String;
     pubKeyCredParams: Object[];
     timeout: Number;
@@ -15,6 +15,11 @@ interface AttestationOptions {
 interface rp {
     name: String;
     id: String | unknown;
+}
+interface user {
+    id: String;
+    name: String;
+    dispalyName: String;
 }
 /**
  *
