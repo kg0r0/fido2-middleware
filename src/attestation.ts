@@ -22,7 +22,7 @@ interface RequestBody {
 }
 
 interface AttestationOptions {
-  rp: any;
+  rp: rp; 
   user: any;
   challenge: String;
   pubKeyCredParams: Object[];
@@ -39,6 +39,11 @@ interface AttestationExpected {
   challenge: String;
   origin: String;
   factor: String;
+}
+
+interface rp {
+  name: String;
+  id: String | unknown;
 }
 
 /**
