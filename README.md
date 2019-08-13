@@ -28,6 +28,23 @@ app.use(fido2middleware.webAuthentication);
 
 ```
 
+## Configuration 
+Fido2-middleware reads configuration files in the ``./config`` directory for the running process, typically the application root. 
+Place the following files in the config directory:
+```
+{
+    "fido2-middlewareConfig": {
+        "fido2lib": {
+            "timeout": 60000,
+            "rpId": "localhost",
+            "challengeSize": 32
+        },
+        "origin": "https://localhost:3000",
+        "factor": "either"
+    }
+}
+```
+
 ## Example
 ```
 $ cd example
