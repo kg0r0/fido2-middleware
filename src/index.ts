@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
-import config from "config";
 import { NextFunction } from "connect";
 import { attestationOptions, attestationResult } from "./attestation";
 import { assertionOptions, assertionResult } from "./assertion";
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
 
 interface Fido2MiddleWareConfig {
   db: any;
@@ -20,48 +16,58 @@ interface Fido2MiddleWareConfig {
   attestationResultPath: String;
   assertionOptionsPath: String;
   assertionResultPath: String;
-  cookie: {
-    name: string;
-    maxAge: number;
-    httpOnly: boolean;
-  };
 }
 
-async function webAuthentication(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  let options;
-  let errorMessage;
-  try {
-    switch (req.url) {
-      case fido2MiddlewareConfig.attestationOptionsPath ||
-        "/attestation/options":
-        options = await attestationOptions(req);
-        break;
-      case fido2MiddlewareConfig.attestationResultPath || "/attestation/result":
-        options = await attestationResult(req);
-        break;
-      case fido2MiddlewareConfig.assertionOptionsPath || "/assertion/options":
-        options = await assertionOptions(req);
-        break;
-      case fido2MiddlewareConfig.assertionResultPath || "/assertion/result":
-        options = await assertionResult(req);
-        break;
-    }
-  } catch (e) {
-    errorMessage = e.message;
+function webAuthentication(options: any) {
+  const opts: Fido2MiddleWareConfig = {
+    db: {},
+    fido2lib: {
+      timeout: options.fido2lib.timeout || 60000,
+      rpId: options.fido2lib.rpId || "localhost",
+      challengeSize: options.fido2lib.challengeSize || 32
+    },
+    origin: options.origin || "https://localhost:3000",
+    factor: options.factor || "either",
+    attestationOptionsPath: options.attestationOptionsPath || "/attestation/options",
+    attestationResultPath: options.attestationResultPath || "/attestation/result",
+    assertionOptionsPath: options.assertionOptionsPath || "/assertion/options",
+    assertionResultPath: options.assertionResultPath || "/assertion/result",
   }
-  if (errorMessage) {
-    return res.json({
-      status: "failed",
-      errorMessage: errorMessage
-    });
-  } else if (options) {
-    return res.json(options);
-  } else {
-    next();
+  return async function __webAuthentication(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
+    let options;
+    let errorMessage;
+    try {
+      switch (req.url) {
+        case opts.assertionOptionsPath: 
+          options = await attestationOptions(req);
+          break;
+        case opts.attestationResultPath:
+          options = await attestationResult(req);
+          break;
+        case opts.assertionOptionsPath:
+          options = await assertionOptions(req);
+          break;
+        case opts.assertionResultPath:
+          options = await assertionResult(req);
+          break;
+      }
+    } catch (e) {
+      errorMessage = e.message;
+    }
+    if (errorMessage) {
+      return res.json({
+        status: "failed",
+        errorMessage: errorMessage
+      });
+    } else if (options) {
+      return res.json(options);
+    } else {
+      next();
+    }
   }
 }
 
