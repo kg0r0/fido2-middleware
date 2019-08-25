@@ -43,16 +43,16 @@ function webAuthentication(options: any) {
     try {
       switch (req.url) {
         case opts.assertionOptionsPath: 
-          options = await attestationOptions(req);
+          options = await attestationOptions(req, opts);
           break;
         case opts.attestationResultPath:
-          options = await attestationResult(req);
+          options = await attestationResult(req, opts);
           break;
         case opts.assertionOptionsPath:
           options = await assertionOptions(req);
           break;
         case opts.assertionResultPath:
-          options = await assertionResult(req);
+          options = await assertionResult(req, opts);
           break;
       }
     } catch (e) {

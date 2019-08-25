@@ -10,9 +10,6 @@ import config from "config";
 import base64url from "base64url";
 const fido2lib = require("fido2-lib");
 const cache = require("./cache");
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
 
 interface RequestBody {
   id: String;
@@ -59,12 +56,12 @@ interface user {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export async function attestationOptions(req: Request) {
+export async function attestationOptions(req: Request, opts: Fido2MiddleWareConfig) {
   if (!req.body || !req.body.username || !req.body.displayName)
     throw new Error("Request missing display name or username field!");
 
   let excludeCredentials;
-  if (!fido2MiddlewareConfig.db) {
+  if (!opts.db) {
     const cacheData = await cache.getAsync(req.body.username);
     if (cacheData && cacheData.registered) {
       excludeCredentials = [
@@ -83,7 +80,7 @@ export async function attestationOptions(req: Request) {
     }
   }
 
-  const fido2Lib = new fido2lib.Fido2Lib(fido2MiddlewareConfig.fido2lib);
+  const fido2Lib = new fido2lib.Fido2Lib(opts.fido2lib);
   const result = await fido2Lib.attestationOptions().catch((err: Error) => {
     return {
       status: "failed",
@@ -121,13 +118,13 @@ export async function attestationOptions(req: Request) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export async function attestationResult(req: Request) {
+export async function attestationResult(req: Request, opts: Fido2MiddleWareConfig) {
   attestationResultReqValidator(req.body);
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AttestationExpected = {
     challenge: req.session ? req.session.challenge : "",
-    origin: fido2MiddlewareConfig.origin,
-    factor: fido2MiddlewareConfig.factor
+    origin: opts.origin,
+    factor: opts.factor
   };
   const requestBody: RequestBody = preFormatAttestationResultReq(req.body);
   const result = await fido2Lib.attestationResult(requestBody, expected);

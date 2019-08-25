@@ -2,9 +2,6 @@ import crypto from "crypto";
 import { Request } from "express";
 import base64url from "base64url";
 import config from "config";
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
 const str2ab = require("string-to-arraybuffer");
 
 export interface Fido2MiddleWareConfig {
@@ -141,12 +138,13 @@ export function preFormatAssertionResultReq(
  */
 export function assertionClientDataJSONValidator(
   req: Request,
-  clientDataJSON: ClientDataJSON
+  clientDataJSON: ClientDataJSON,
+  opts: Fido2MiddleWareConfig
 ): boolean {
   if (req.session && clientDataJSON.challenge !== req.session.challenge)
     throw new Error("Challenges don't match!");
 
-  if (clientDataJSON.origin !== fido2MiddlewareConfig.origin)
+  if (clientDataJSON.origin !== opts.origin)
     throw new Error("Origins don't match!");
 
   if (clientDataJSON.type !== "webauthn.get")

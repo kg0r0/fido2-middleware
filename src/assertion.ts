@@ -12,9 +12,6 @@ import config from "config";
 import base64url from "base64url";
 const fido2lib = require("fido2-lib");
 const cache = require("./cache");
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
 
 interface AssertionOptions {
   challenge: String;
@@ -87,14 +84,14 @@ export async function assertionOptions(req: Request) {
  * @param {Function} next - Express next middleware function
  * @returns {undefined}
  */
-export async function assertionResult(req: Request) {
+export async function assertionResult(req: Request, opts:Fido2MiddleWareConfig) {
   assertionResultReqValidator(req.body);
 
   const clientData: ClientDataJSON = JSON.parse(
     base64url.decode(req.body.response.clientDataJSON)
   );
 
-  assertionClientDataJSONValidator(req, clientData);
+  assertionClientDataJSONValidator(req, clientData, opts);
 
   let authenticators;
   let factor;
@@ -109,8 +106,8 @@ export async function assertionResult(req: Request) {
   const fido2Lib = new fido2lib.Fido2Lib();
   const expected: AssertionExpected = {
     challenge: clientData.challenge,
-    origin: fido2MiddlewareConfig.origin,
-    factor: factor || fido2MiddlewareConfig.factor,
+    origin: opts.origin,
+    factor: factor || opts.factor,
     publicKey: authr.publicKey,
     prevCounter: authr.counter,
     userHandle: req.body.response.userHandle || null
