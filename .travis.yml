@@ -6,5 +6,10 @@ install:
 script:
  - npm run lint
  - npm run cover
-
+deploy:
+  provider: npm
+  email: "g0r0kent0@gmail.com"
+  api_key: $NPM_TOKEN
+  on:
+    branch: master
 after_script: node_modules/nyc/bin/nyc.js  report --reporter=text-lcov | node_modules/coveralls/bin/coveralls.js 
