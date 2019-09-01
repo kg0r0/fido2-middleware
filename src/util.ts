@@ -1,10 +1,26 @@
 import crypto from "crypto";
+import fs from "fs";
 import { Request } from "express";
 import base64url from "base64url";
 import config from "config";
-export const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
+export let fido2MiddlewareConfig: Fido2MiddleWareConfig = isConfigFile(
+  process.cwd() + "/config/default.json"
+)
+  ? config.get("fido2-middlewareConfig")
+  : {
+      db: {},
+      factor: "either",
+      fido2lib: {
+        timeout: 6000,
+        rpId: "localhost",
+        challengeSize: 32
+      },
+      origin: "https://localhost:3000",
+      attestationOptionsPath: "/attestation/options",
+      attestationResultPath: "/attestation/result",
+      assertionOptionsPath: "/assertion/options",
+      assertionResultPath: "/assertion/result"
+    };
 const str2ab = require("string-to-arraybuffer");
 
 export interface Fido2MiddleWareConfig {
@@ -205,4 +221,13 @@ export function assertionResultReqValidator(body: any): boolean {
     throw new Error("Signature is not base64url encoded");
 
   return true;
+}
+
+export function isConfigFile(dirname: string): boolean {
+  try {
+    fs.accessSync(dirname, fs.constants.R_OK);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
