@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { Request } from "express";
+export declare const fido2MiddlewareConfig: Fido2MiddleWareConfig;
 export interface Fido2MiddleWareConfig {
     db: any;
     factor: String;

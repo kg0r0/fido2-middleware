@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { Request } from "express";
 import base64url from "base64url";
 import config from "config";
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
+export const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
   "fido2-middlewareConfig"
 );
 const str2ab = require("string-to-arraybuffer");

@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session');
 var logger = require('morgan');
 var crypto = require('crypto');
-var fido2middleware = require('fido2-middleware');
+var fido2middleware = require('../lib/src/index.js');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
