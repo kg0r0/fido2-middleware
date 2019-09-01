@@ -4,17 +4,13 @@ import {
   preFormatAssertionResultReq,
   assertionResultReqValidator,
   assertionClientDataJSONValidator,
-  Fido2MiddleWareConfig,
   ClientDataJSON,
-  AuthrInfo
+  AuthrInfo,
+  fido2MiddlewareConfig
 } from "./util";
-import config from "config";
 import base64url from "base64url";
 const fido2lib = require("fido2-lib");
 const cache = require("./cache");
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
 
 interface AssertionOptions {
   challenge: String;

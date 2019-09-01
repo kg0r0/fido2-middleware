@@ -2,17 +2,13 @@ import { Request } from "express";
 import {
   randomBase64URLBuffer,
   preFormatAttestationResultReq,
-  Fido2MiddleWareConfig,
   AuthrInfo,
-  attestationResultReqValidator
+  attestationResultReqValidator,
+  fido2MiddlewareConfig
 } from "./util";
-import config from "config";
 import base64url from "base64url";
 const fido2lib = require("fido2-lib");
 const cache = require("./cache");
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
 
 interface RequestBody {
   id: String;

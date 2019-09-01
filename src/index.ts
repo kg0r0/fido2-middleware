@@ -1,31 +1,8 @@
 import { Request, Response } from "express";
-import config from "config";
 import { NextFunction } from "connect";
 import { attestationOptions, attestationResult } from "./attestation";
 import { assertionOptions, assertionResult } from "./assertion";
-const fido2MiddlewareConfig: Fido2MiddleWareConfig = config.get(
-  "fido2-middlewareConfig"
-);
-
-interface Fido2MiddleWareConfig {
-  db: any;
-  factor: String;
-  fido2lib: {
-    timeout: Number;
-    rpId: String;
-    challengeSize: Number;
-  };
-  origin: String;
-  attestationOptionsPath: String;
-  attestationResultPath: String;
-  assertionOptionsPath: String;
-  assertionResultPath: String;
-  cookie: {
-    name: string;
-    maxAge: number;
-    httpOnly: boolean;
-  };
-}
+import { fido2MiddlewareConfig } from "./util";
 
 async function webAuthentication(
   req: Request,
