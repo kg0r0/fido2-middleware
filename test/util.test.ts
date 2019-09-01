@@ -10,7 +10,8 @@ import {
   isRequestBody,
   assertionClientDataJSONValidator,
   attestationResultReqValidator,
-  assertionResultReqValidator
+  assertionResultReqValidator,
+  isConfigFile
 } from "../src/util";
 import { mockReq } from "sinon-express-mock";
 
@@ -348,5 +349,13 @@ describe("assertionResultReqValidator()", () => {
     } catch (e) {
       expect(e.message).to.equal("Signature is not base64url encoded");
     }
+  });
+
+  describe("isConfigFile()", () => {
+    it("should return true", () =>
+      expect(isConfigFile(process.cwd())).to.equal(true));
+
+    it("should return false", () =>
+      expect(isConfigFile("Invalid File Path")).to.equal(false));
   });
 });
