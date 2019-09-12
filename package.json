@@ -73,7 +73,7 @@
     "cookie-session": "^1.3.3",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
-    "fido2-lib": "git://github.com/kg0r0/fido2-lib.git#kg0r0-develop",
+    "fido2-lib": "git://github.com/kg0r0/fido2-lib.git",
     "fs": "0.0.1-security",
     "node-cache": "^4.2.0",
     "string-to-arraybuffer": "^1.0.2",
