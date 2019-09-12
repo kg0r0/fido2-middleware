@@ -141,6 +141,9 @@ export function preFormatAssertionResultReq(
       base64url.toBuffer(reqBody.response.authenticatorData)
     );
   }
+  if (reqBody.response.userHandle == null) {
+    reqBody.response.userHandle = undefined;
+  }
   return {
     id: str2ab(reqBody.id),
     rawId: str2ab(reqBody.rawId),
