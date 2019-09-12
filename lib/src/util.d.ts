@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { Request } from "express";
-export declare const fido2MiddlewareConfig: Fido2MiddleWareConfig;
+export declare let fido2MiddlewareConfig: Fido2MiddleWareConfig;
 export interface Fido2MiddleWareConfig {
     db: any;
     factor: String;
@@ -94,4 +94,5 @@ export declare function attestationResultReqValidator(body: any): boolean;
  * @returns {boolean}
  */
 export declare function assertionResultReqValidator(body: any): boolean;
+export declare function isConfigFile(dirname: string): boolean;
 export {};
