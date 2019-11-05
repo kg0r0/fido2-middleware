@@ -75,7 +75,7 @@
     "express": "^4.16.4",
     "fido2-lib": "git://github.com/kg0r0/fido2-lib.git",
     "fs": "0.0.1-security",
-    "node-cache": "^4.2.0",
+    "node-cache": "^5.0.1",
     "string-to-arraybuffer": "^1.0.2",
     "url": "^0.11.0"
   },
