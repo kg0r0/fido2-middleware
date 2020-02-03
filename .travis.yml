@@ -8,6 +8,7 @@ script:
  - npm run cover
 deploy:
   provider: npm
+  edge: true
   email: "g0r0kent0@gmail.com"
   api_key: $NPM_TOKEN
   on:
